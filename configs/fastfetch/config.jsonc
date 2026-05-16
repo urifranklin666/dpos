@@ -48,6 +48,13 @@
     },
     "break",
     {
+      "type": "command",
+      "key": "rite",
+      "shell": "sh",
+      "text": "~/.local/bin/dpos-rite 2>/dev/null"
+    },
+    "break",
+    {
       "type": "colors",
       "paddingLeft": 9,
       "symbol": "circle"

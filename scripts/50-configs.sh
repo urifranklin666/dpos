@@ -24,12 +24,23 @@ drop_dir() {
   log_ok "deployed $(basename "${dest}")"
 }
 
+# Migration: conky was dropped in the visual pass (didn't suit a tiling
+# WM). Kill any running instance and back up the old config so future
+# reinstalls don't resurrect it.
+if pgrep -x conky >/dev/null 2>&1; then
+  pkill -x conky 2>/dev/null || true
+  log_info "stopped running conky daemon"
+fi
+if [[ -d "${HOME}/.config/conky" ]]; then
+  backup_path "${HOME}/.config/conky"
+  log_info "backed up old conky config"
+fi
+
 drop_dir i3        "${HOME}/.config/i3"
 drop_dir polybar   "${HOME}/.config/polybar"
 drop_dir picom     "${HOME}/.config/picom"
 drop_dir rofi      "${HOME}/.config/rofi"
 drop_dir alacritty "${HOME}/.config/alacritty"
-drop_dir conky     "${HOME}/.config/conky"
 drop_dir dunst     "${HOME}/.config/dunst"
 
 # polybar launcher must be executable

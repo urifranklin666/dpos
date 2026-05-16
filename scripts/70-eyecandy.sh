@@ -74,11 +74,17 @@ log_ok "deployed ~/.Xresources"
 profile_block='
 # dpos: auto-startx on tty1
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] && command -v startx >/dev/null 2>&1; then
-  exec startx -- -nocursor
+  exec startx
 fi
 '
 for rcfile in "${HOME}/.zlogin" "${HOME}/.bash_profile"; do
   touch "${rcfile}"
+  # Self-heal: prior installs may have included `-- -nocursor` which makes
+  # the mouse cursor invisible in i3. Strip it if present.
+  if grep -q 'exec startx -- -nocursor' "${rcfile}"; then
+    sed -i 's|exec startx -- -nocursor|exec startx|' "${rcfile}"
+    log_ok "removed stale -nocursor from $(basename "${rcfile}")"
+  fi
   if ! grep -q "dpos: auto-startx" "${rcfile}"; then
     printf '%s\n' "${profile_block}" >> "${rcfile}"
     log_ok "wired startx into $(basename "${rcfile}")"

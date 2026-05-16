@@ -170,7 +170,6 @@ exec --no-startup-id ~/.config/polybar/launch.sh
 exec --no-startup-id dunst
 exec --no-startup-id nm-applet
 exec --no-startup-id feh --no-fehbg --bg-fill ~/.local/share/dpos/wallpapers/deadplug.png
-exec --no-startup-id conky -c ~/.config/conky/conky.conf
 exec --no-startup-id xset s off -dpms
 exec_always --no-startup-id xsetroot -solid '#050505'
 

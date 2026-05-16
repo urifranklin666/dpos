@@ -1,8 +1,8 @@
 # DESIGN.md — dpos visual language
 
 This document names the aesthetic and the grammar. Read it before
-touching the wallpaper, polybar, conky, lockscreen, or anything that
-ends up on a screen for more than a half-second.
+touching the wallpaper, polybar, fastfetch, lockscreen, MOTD, or
+anything that ends up on a screen for more than a half-second.
 
 ## The stance
 
@@ -22,11 +22,15 @@ priesthood.
 > If you screenshotted the desktop with all branding removed, what
 > would still tell someone it's a dpos box?
 
-**The serif italic rite floating over mono everything else.**
+**The daily rite, surfacing every time the user opens a shell** —
+rendered in fastfetch with the rest of the system info, in serif
+italic against the figlet mono logo. The wall of ambient log-line
+text on the wallpaper is the secondary anchor. Polybar's `// LABEL`
+grammar is tertiary.
 
-That is the single anchor element. The big serif load number reinforces
-it. The wall of ambient log-line text on the wallpaper reinforces it.
-Everything else (polybar, dunst, alacritty) is the supporting cast.
+(Earlier iteration tried a giant serif load number in conky, but conky
+on a tiling WM means competing for a tile slot you've already promised
+to i3. The rite moved to fastfetch.)
 
 ## Tokens
 
@@ -76,18 +80,18 @@ This is the single most visible brand signal. Do not replace `//` with
 - **Serif italic** (DejaVu Serif italic, Georgia italic as fallback):
   reserved for the **rite** and any other passage that should read like
   it's being intoned. Never used for chrome.
-- **Serif bold, large** (DejaVu Serif bold, 60-90px): reserved for the
-  single anchor number on a panel — conky's load average, a stat we
-  want to be seen across the room.
+- **Serif regular/bold** (DejaVu Serif, Georgia as fallback): reserved
+  for body-length passages that deserve a "document" register —
+  Codex-style reading rather than UI chrome.
 
 ### Composition
 
 - Asymmetry is preferred over symmetry. The wallpaper sigil is in the
-  top-right, the wordmark is in the bottom-left. The conky panel
-  anchors the top-right of the desktop.
+  top-right; the wordmark is in the bottom-left; the central log
+  column is offset, not dead-center.
 - **One element should dominate per surface.** On the wallpaper it's
-  the column of ambient text. On conky it's the load number. On the
-  lockscreen it's `// AUTHENTICATE`.
+  the column of ambient text. In fastfetch it's the figlet wordmark
+  plus the rite. On the lockscreen it's `// AUTHENTICATE`.
 - Negative space is structural. Polybar has 2px of border-bottom and
   no other framing. The wallpaper's corner brackets imply a frame
   without enclosing one.
@@ -97,8 +101,9 @@ This is the single most visible brand signal. Do not replace `//` with
 - Boot splash: heartbeat pulse on the sigil, drifting embers, ~6s
   chromatic-split glitch on the wordmark. (Plymouth script handles
   this.)
-- Desktop: no motion by default. Conky updates every 2s; that's the
-  only animation surface. Picom does fades, not blurs.
+- Desktop: no motion by default. Polybar refreshes module values on
+  short intervals (CPU/MEM 2-3s, // ON AIR 5s). Picom does fades,
+  not blurs.
 - Lockscreen: i3lock-color renders the password ring in red. No bounce.
 
 If you find yourself adding "a little extra animation to make it pop,"
@@ -117,15 +122,18 @@ appear on:
 They are 64-80px legs, 2px stroke, brand red, ~55% opacity. They
 imply a viewport without drawing a box.
 
-## The five polished surfaces
+## The polished surfaces
 
 | Surface        | What dominates                                      |
 |----------------|-----------------------------------------------------|
 | Wallpaper      | Column of ambient operator log-lines, fading top/bot |
 | Polybar        | `// LABEL VALUE` everywhere, underline on active   |
-| Conky          | One enormous serif load number + daily rite        |
+| Fastfetch      | Figlet wordmark + daily rite in serif italic (every shell open) |
 | Lockscreen     | Blurred wallpaper + centered `// AUTHENTICATE`     |
 | First boot     | One-time greeter terminal with fastfetch + single dry line |
+
+(Conky was removed — it doesn't belong on a tiling WM. See the
+"Differentiation anchor" section above.)
 
 ## Anti-patterns
 

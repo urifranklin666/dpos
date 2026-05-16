@@ -20,7 +20,6 @@ picom                ──  compositor, light shadows + fade, no blur (the Pi G
 rofi                 ──  launcher, deadplug.rasi theme
 alacritty            ──  terminal, mono, transparent, red prompt
 zsh                  ──  default shell, custom prompt, dry aliases
-conky                ──  floating system panel
 dunst                ──  notifications, black with a red gutter
 plymouth             ──  boot splash with the plug-skull-bolt
 fortune              ──  custom fortune file (deadplug canon, no rainbows)
@@ -65,7 +64,7 @@ To run only part of it:
 | `40-fonts.sh`       | Mono (Fira Code, Cascadia), serif (DejaVu)                |
 | `50-configs.sh`     | Drop configs from `configs/` into `$HOME/.config/`        |
 | `60-shell.sh`       | zsh + custom prompt + brand aliases                       |
-| `70-eyecandy.sh`    | picom, conky, fortunes, fastfetch, autostart of `startx`  |
+| `70-eyecandy.sh`    | picom, fortunes, fastfetch, autostart of `startx`         |
 | `80-plymouth.sh`    | Boot splash theme + initramfs update                      |
 | `90-motd.sh`        | Login banner replacement                                  |
 | `99-tighten.sh`     | gpu_mem, zram, disable cruft, KMS check, governor         |

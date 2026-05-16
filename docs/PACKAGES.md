@@ -62,7 +62,6 @@ main, so the kit works on either codename.
 | pavucontrol                      | arm64    | GTK control. |
 | network-manager-gnome            | arm64    | `nm-applet` (used for connection dialogs). |
 | arandr, autorandr                | all      | display layout. |
-| conky-all                        | arm64    | system stats panel. |
 | ranger                           | all      | TUI file manager. |
 | scrot                            | arm64    | screenshots. |
 | papirus-icon-theme               | all      | |

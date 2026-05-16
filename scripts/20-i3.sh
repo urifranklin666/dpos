@@ -23,7 +23,6 @@ readonly I3_PKGS=(
   pulseaudio-utils pavucontrol
   network-manager-gnome
   arandr autorandr
-  conky-all
   ranger
   scrot
   papirus-icon-theme
