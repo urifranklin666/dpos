@@ -1,0 +1,188 @@
+// dpos / plymouth — brand-compliant splash.
+//
+// Layers:
+//   z=0  bg.png            black + grid + scanlines + bloom + corner brackets
+//   z=2  ember×N           drifting upward, opacity flicker
+//   z=8  bar-track / fill  thin red progress strip near the bottom
+//   z=10 wordmark + offset chromatic-split clones
+//   z=11 eyebrow           dim mono '// SELF-HOSTED · ZERO TELEMETRY ...'
+//   z=12 logo              plug-skull-bolt sigil, heartbeat pulse
+//   z=15 status            update-status text, dim red, mono
+//
+// Plymouth script lang reference: man 5 plymouth-script
+
+Window.SetBackgroundTopColor   (0.02, 0.0, 0.0);
+Window.SetBackgroundBottomColor(0.01, 0.0, 0.0);
+
+screen_w = Window.GetWidth();
+screen_h = Window.GetHeight();
+
+// ---- background plate ----------------------------------------------------
+bg.image  = Image("bg.png");
+bg.sprite = Sprite(bg.image);
+bg.sprite.SetPosition(0, 0, 0);
+
+// ---- sigil ---------------------------------------------------------------
+logo.image  = Image("logo.png");
+logo.sprite = Sprite(logo.image);
+logo.w      = logo.image.GetWidth();
+logo.h      = logo.image.GetHeight();
+logo.x      = (screen_w - logo.w) / 2;
+logo.y      = (screen_h - logo.h) / 2 - 80;
+logo.sprite.SetPosition(logo.x, logo.y, 12);
+
+// ---- wordmark (3 sprites stacked for chromatic split when glitching) ----
+wm.image       = Image("wordmark.png");
+wm.image_r     = Image("wordmark-glitch-r.png");
+wm.image_c     = Image("wordmark-glitch-c.png");
+
+wm.w = wm.image.GetWidth();
+wm.h = wm.image.GetHeight();
+wm.x = (screen_w - wm.w) / 2;
+wm.y = logo.y + logo.h + 18;
+
+wm.sprite   = Sprite(wm.image);
+wm.sprite_r = Sprite(wm.image_r);
+wm.sprite_c = Sprite(wm.image_c);
+
+wm.sprite.SetPosition(wm.x, wm.y, 10);
+wm.sprite_r.SetPosition(wm.x, wm.y, 10);
+wm.sprite_c.SetPosition(wm.x, wm.y, 10);
+// channel offsets are invisible until glitch_cb pushes them apart
+wm.sprite_r.SetOpacity(0.0);
+wm.sprite_c.SetOpacity(0.0);
+
+// ---- eyebrow -------------------------------------------------------------
+eb.image  = Image("eyebrow.png");
+eb.sprite = Sprite(eb.image);
+eb.x = (screen_w - eb.image.GetWidth()) / 2;
+eb.y = wm.y + wm.h + 6;
+eb.sprite.SetPosition(eb.x, eb.y, 11);
+
+// ---- progress bar --------------------------------------------------------
+bar.track       = Image("bar-track.png");
+bar.track_sprite = Sprite(bar.track);
+bar.w_max = bar.track.GetWidth();
+bar.h     = bar.track.GetHeight();
+bar.x     = (screen_w - bar.w_max) / 2;
+bar.y     = screen_h - 90;
+bar.track_sprite.SetPosition(bar.x, bar.y, 8);
+
+bar.fill_src     = Image("bar-fill.png");      // 1×2 bright red
+bar.fill_sprite  = Sprite();
+bar.fill_sprite.SetPosition(bar.x, bar.y, 9);
+bar.fill_sprite.SetImage(bar.fill_src.Scale(1, bar.h));
+bar.fill_sprite.SetOpacity(0.95);
+
+// ---- status line ---------------------------------------------------------
+status_y      = bar.y + bar.h + 20;
+status_sprite = Sprite();
+status_sprite.SetPosition(0, status_y, 15);
+
+// initial dry caption — replaced as soon as plymouth sends a status
+boot_msg = Image.Text("// waking up the daemons", 0.6, 0.0, 0.0, 1.0, "Sans 11");
+status_sprite.SetImage(boot_msg);
+status_sprite.SetX((screen_w - boot_msg.GetWidth()) / 2);
+
+// ---- embers --------------------------------------------------------------
+ember.image  = Image("ember.png");
+ember_count  = 8;  // small fleet — VC6-friendly
+embers       = [];
+for (i = 0; i < ember_count; i++) {
+  e.sprite = Sprite(ember.image);
+  e.x      = Math.Random() * screen_w;
+  e.y      = Math.Random() * screen_h;
+  e.speed  = 0.35 + Math.Random() * 0.85;
+  e.drift  = (Math.Random() - 0.5) * 0.5;
+  e.base   = 0.35 + Math.Random() * 0.45;
+  e.phase  = Math.Random() * 6.28;
+  e.sprite.SetPosition(e.x, e.y, 2);
+  e.sprite.SetOpacity(e.base);
+  embers[i] = e;
+}
+
+// ---- refresh loop --------------------------------------------------------
+fun refresh_cb() {
+  t = Plymouth.GetTime();
+
+  // logo heartbeat pulse — same rhythm as the homepage logo glow
+  a = 0.82 + 0.18 * Math.Sin(t * 2.4);
+  logo.sprite.SetOpacity(a);
+
+  // ember motion
+  for (i = 0; i < ember_count; i++) {
+    e = embers[i];
+    e.y = e.y - e.speed;
+    e.x = e.x + e.drift;
+    if (e.y < -24) {
+      e.y = screen_h + 24;
+      e.x = Math.Random() * screen_w;
+    }
+    if (e.x < -24) { e.x = screen_w + 24; }
+    if (e.x > screen_w + 24) { e.x = -24; }
+    flick = 0.80 + 0.20 * Math.Sin(t * 3.0 + e.phase);
+    e.sprite.SetPosition(e.x, e.y, 2);
+    e.sprite.SetOpacity(e.base * flick);
+    embers[i] = e;
+  }
+
+  // chromatic-split glitch on the wordmark — ~6s period, ~120ms visible
+  cycle = t - 6.0 * Math.Int(t / 6.0);
+  if (cycle < 0.12) {
+    wm.sprite_r.SetPosition(wm.x - 3, wm.y, 10);
+    wm.sprite_c.SetPosition(wm.x + 3, wm.y, 10);
+    wm.sprite_r.SetOpacity(0.85);
+    wm.sprite_c.SetOpacity(0.65);
+    // small clip-shift on the base too
+    wm.sprite.SetPosition(wm.x + 1, wm.y, 10);
+  } else {
+    wm.sprite_r.SetOpacity(0.0);
+    wm.sprite_c.SetOpacity(0.0);
+    wm.sprite.SetPosition(wm.x, wm.y, 10);
+  }
+}
+Plymouth.SetRefreshFunction(refresh_cb);
+
+// ---- progress ------------------------------------------------------------
+fun progress_cb(duration, progress) {
+  w = bar.w_max * progress;
+  if (w < 1) { w = 1; }
+  bar.fill_sprite.SetImage(bar.fill_src.Scale(w, bar.h));
+}
+Plymouth.SetBootProgressFunction(progress_cb);
+
+// ---- status / password / question ----------------------------------------
+fun status_cb(text) {
+  m = Image.Text("// " + text, 0.65, 0.0, 0.0, 1.0, "Sans 11");
+  status_sprite.SetImage(m);
+  status_sprite.SetX((screen_w - m.GetWidth()) / 2);
+}
+Plymouth.SetUpdateStatusFunction(status_cb);
+
+fun password_cb(prompt, bullets) {
+  m = Image.Text(prompt + " " + bullets, 0.95, 0.18, 0.18, 1.0, "Sans 13");
+  status_sprite.SetImage(m);
+  status_sprite.SetX((screen_w - m.GetWidth()) / 2);
+}
+Plymouth.SetDisplayPasswordFunction(password_cb);
+
+fun question_cb(prompt, entry) {
+  m = Image.Text(prompt + " " + entry, 0.95, 0.18, 0.18, 1.0, "Sans 13");
+  status_sprite.SetImage(m);
+  status_sprite.SetX((screen_w - m.GetWidth()) / 2);
+}
+Plymouth.SetDisplayQuestionFunction(question_cb);
+
+// ---- quit ----------------------------------------------------------------
+fun quit_cb() {
+  // fade out logo + wordmark before handoff
+  logo.sprite.SetOpacity(0.0);
+  wm.sprite.SetOpacity(0.0);
+  wm.sprite_r.SetOpacity(0.0);
+  wm.sprite_c.SetOpacity(0.0);
+  eb.sprite.SetOpacity(0.0);
+  bar.fill_sprite.SetOpacity(0.0);
+  bar.track_sprite.SetOpacity(0.0);
+  status_sprite.SetOpacity(0.0);
+}
+Plymouth.SetQuitFunction(quit_cb);

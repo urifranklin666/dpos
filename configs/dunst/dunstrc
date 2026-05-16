@@ -1,0 +1,80 @@
+# dpos / dunst — notifications, deadplug palette.
+# https://man.archlinux.org/man/dunst.5
+
+[global]
+monitor = 0
+follow = mouse
+
+origin = top-right
+offset = 12x40
+scale = 0
+notification_limit = 5
+
+progress_bar = true
+progress_bar_height = 8
+progress_bar_frame_width = 1
+progress_bar_min_width = 150
+progress_bar_max_width = 380
+
+indicate_hidden = yes
+transparency = 12
+separator_height = 1
+padding = 10
+horizontal_padding = 14
+text_icon_padding = 0
+
+frame_width = 1
+frame_color = "#cc0000"
+
+separator_color = frame
+sort = yes
+
+font = Cascadia Code 10
+line_height = 0
+markup = full
+format = "<b>%a</b>\n<span foreground='#dedede'>%s</span>\n<span foreground='#9a9a9a'>%b</span>"
+alignment = left
+vertical_alignment = center
+
+show_age_threshold = 60
+ellipsize = middle
+ignore_newline = no
+stack_duplicates = true
+hide_duplicate_count = false
+show_indicators = yes
+
+icon_position = left
+min_icon_size = 0
+max_icon_size = 32
+
+sticky_history = yes
+history_length = 50
+
+dmenu = /usr/bin/rofi -dmenu -p dunst
+browser = /usr/bin/xdg-open
+
+title = Dunst
+class = Dunst
+corner_radius = 0
+
+mouse_left_click = close_current
+mouse_middle_click = do_action, close_current
+mouse_right_click = close_all
+
+[urgency_low]
+background = "#060606"
+foreground = "#9a9a9a"
+frame_color = "#2b0000"
+timeout = 6
+
+[urgency_normal]
+background = "#060606"
+foreground = "#dedede"
+frame_color = "#cc0000"
+timeout = 8
+
+[urgency_critical]
+background = "#3a0000"
+foreground = "#ffffff"
+frame_color = "#ff2222"
+timeout = 0

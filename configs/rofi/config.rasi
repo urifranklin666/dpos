@@ -1,0 +1,19 @@
+// dpos / rofi — entrypoint config
+// the theme file lives next to this one.
+
+configuration {
+  modi: "drun,run,window,filebrowser";
+  font: "Cascadia Code 11";
+  show-icons: false;
+  display-drun: "// run  ";
+  display-run:  "// exec ";
+  display-window: "// wins ";
+  display-filebrowser: "// fs  ";
+  drun-display-format: "{name}";
+  matching: "fuzzy";
+  hide-scrollbar: true;
+  sidebar-mode: false;
+  terminal: "alacritty";
+}
+
+@theme "~/.config/rofi/deadplug.rasi"

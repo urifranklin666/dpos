@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  dpos plymouth — central sigil. Lifted from /homepage/logo.svg
+  (the plug-skull-bolt with DEADPLUG / DIGITAL text arcs). Transparent
+  background so the bg.png shows through. Rendered to a 256×256 PNG.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="256" height="256">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   style="stop-color:#1a0000;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#0a0a0a;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   style="stop-color:#ff2222;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#990000;stop-opacity:1"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- outer / inner rings -->
+  <circle cx="60" cy="60" r="58" fill="none" stroke="#cc0000" stroke-width="1.5" opacity="0.4"/>
+  <circle cx="60" cy="60" r="55" fill="url(#bgGrad)"/>
+  <circle cx="60" cy="60" r="55" fill="none" stroke="#cc0000" stroke-width="2"/>
+
+  <!-- prongs -->
+  <rect x="46" y="20" width="7" height="16" rx="2" fill="url(#redGrad)" filter="url(#glow)"/>
+  <rect x="67" y="20" width="7" height="16" rx="2" fill="url(#redGrad)" filter="url(#glow)"/>
+
+  <!-- plug head -->
+  <rect x="38" y="33" width="44" height="28" rx="5" fill="url(#redGrad)" filter="url(#glow)"/>
+  <!-- cord neck -->
+  <rect x="52" y="61" width="16" height="10" rx="2" fill="#cc0000"/>
+
+  <!-- skull face -->
+  <ellipse cx="50" cy="45" rx="5" ry="5.5" fill="#0a0a0a" opacity="0.85"/>
+  <ellipse cx="70" cy="45" rx="5" ry="5.5" fill="#0a0a0a" opacity="0.85"/>
+  <path d="M58 52 L60 49 L62 52 Z" fill="#0a0a0a" opacity="0.7"/>
+  <rect x="50" y="55" width="4" height="4" rx="1" fill="#0a0a0a" opacity="0.7"/>
+  <rect x="56" y="55" width="4" height="4" rx="1" fill="#0a0a0a" opacity="0.7"/>
+  <rect x="62" y="55" width="4" height="4" rx="1" fill="#0a0a0a" opacity="0.7"/>
+  <line x1="48" y1="55" x2="72" y2="55" stroke="#0a0a0a" stroke-width="1.5" opacity="0.7"/>
+
+  <!-- bolt -->
+  <path d="M60 71 L60 78" stroke="#cc0000" stroke-width="3" stroke-linecap="round"/>
+  <path d="M65 80 L57 92 L63 92 L55 106 L69 88 L63 88 L70 80 Z"
+        fill="url(#redGrad)" filter="url(#glow)"/>
+
+  <!-- ANSI-style text arcs (rsvg-convert renders textPath fine; falls back to plain glyphs otherwise) -->
+  <path id="topArc" d="M 18,60 A 42,42 0 0,1 102,60" fill="none"/>
+  <text font-family="DejaVu Sans, Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="700"
+        fill="#cc0000" letter-spacing="3.5" opacity="0.9">
+    <textPath href="#topArc" startOffset="8%">DEADPLUG</textPath>
+  </text>
+  <path id="botArc" d="M 20,65 A 42,42 0 0,0 100,65" fill="none"/>
+  <text font-family="DejaVu Sans, Segoe UI, Arial, sans-serif" font-size="9" font-weight="600"
+        fill="#880000" letter-spacing="4" opacity="0.85">
+    <textPath href="#botArc" startOffset="14%">DIGITAL</textPath>
+  </text>
+</svg>

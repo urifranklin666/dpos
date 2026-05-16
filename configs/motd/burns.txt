@@ -1,0 +1,42 @@
+it's fine. it's all fine.
+no metrics were harmed in the boot of this machine.
+if it hurts, do it less often.
+nothing here is collecting your data. nothing here even respects you.
+the cluster is one machine. it's always been one machine.
+backups are for cowards and adults.
+keep going. it'll be funny later.
+this is what we trained for.
+the dashboard is a lie we tell ourselves to feel productive.
+your container is healthy. it just refuses to talk to anyone.
+remember: every uptime number was once 0.
+the firmware does not love you.
+"works on my machine" is, technically, half a guarantee.
+the staging environment was an inside job.
+some processes simply do not wish to be killed.
+the systemd journal remembers everything except what you need.
+your terminal is the only honest UI you'll ever have.
+prod is a state of mind. so is calm.
+all bugs are race conditions if you squint.
+the only stable releases are the abandoned ones.
+documentation exists. you simply weren't supposed to find it.
+your hostname suggests overconfidence.
+this machine is doing its best. arguably.
+DNS, again.
+it was a kernel panic, and we forgave it.
+the database is paged. the database paged you. the database is asking.
+this is the most exciting your console will be all week.
+sleep is for processes whose parent has died.
+the dragon at the top of the rack is real and his eyes are LEDs.
+this is a self-hosted experience. nothing about this is at scale.
+you are not the user. you are the operator. it shows.
+no telemetry. not even the good kind.
+the lights blink because the firmware is bored.
+yes, that was always there.
+it compiled. that's the whole story.
+the rite was performed correctly. the rite was performed twice.
+nothing is broken. some things are just slow about being broken.
+this terminal has seen things. don't make it talk about them.
+the swap partition has opinions and will not be quiet.
+the rainbow boot splash has been banished.
+keep your friends close and your fans closer.
+welcome back. nothing has changed except the timestamps.

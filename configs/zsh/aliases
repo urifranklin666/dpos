@@ -1,0 +1,97 @@
+# dpos / aliases — dry shortcuts shared by zsh and bash.
+# don't add anything cute. brevity over personality.
+
+# ---- list & navigate ------------------------------------------------------
+alias ls='ls --color=auto'
+alias l='ls -lh'
+alias la='ls -lha'
+alias ll='ls -lhA'
+alias lt='ls -lhtr'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# ---- grep / find ----------------------------------------------------------
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+# ---- system ---------------------------------------------------------------
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+alias ip='ip --color=auto'
+alias ports='ss -tunlp'
+alias myip='curl -fsS ifconfig.me; echo'
+alias path='echo $PATH | tr ":" "\n"'
+
+# ---- updates --------------------------------------------------------------
+alias up='sudo apt-get update && sudo apt-get -y upgrade'
+alias install='sudo apt-get install --no-install-recommends'
+
+# ---- safer mutations ------------------------------------------------------
+alias rm='rm -i'
+alias mv='mv -i'
+alias cp='cp -i'
+alias mkdir='mkdir -p'
+
+# ---- editors --------------------------------------------------------------
+alias v='vim'
+alias e='${EDITOR:-vim}'
+
+# ---- sysinfo --------------------------------------------------------------
+alias ff='fastfetch'
+alias sysinfo='fastfetch'
+
+# ---- docker (in case you're running rootless or similar) -----------------
+alias dc='docker compose'
+alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
+alias dim='docker images --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}"'
+
+# ---- git ------------------------------------------------------------------
+alias g='git'
+alias gs='git status -sb'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gl='git log --oneline --decorate -20'
+alias gco='git checkout'
+alias gca='git commit --amend'
+alias gp='git push'
+alias gpu='git pull'
+
+# the workaround for the hairpin-NAT 2222 issue described in CLAUDE.md
+alias gpsl='GIT_SSH_COMMAND="ssh -o HostName=127.0.0.1" git push'
+
+# ---- pi specific ---------------------------------------------------------
+alias temp='vcgencmd measure_temp 2>/dev/null || echo "no vcgencmd here"'
+alias volts='vcgencmd measure_volts core 2>/dev/null'
+alias throttle='vcgencmd get_throttled 2>/dev/null'
+alias clock='vcgencmd measure_clock arm 2>/dev/null'
+
+# ---- session control ----------------------------------------------------
+alias e3='i3-msg exit'
+alias relock='i3lock -c 050505'
+alias deathmask='cmatrix -ab -C red'           # screen saver mode
+alias pipes='pipes.sh -t 2 -p 3 -f 60'
+
+# ---- brand-flavored shutdown --------------------------------------------
+goodnight() {
+  print -P "%F{160}// goodnight, sweet prince%f"
+  sleep 1
+  systemctl poweroff
+}
+restart-the-show() {
+  print -P "%F{160}// here we go again%f"
+  sleep 1
+  systemctl reboot
+}
+
+# ---- the deadplug remoteries --------------------------------------------
+alias home='xdg-open https://deadplug.digital >/dev/null 2>&1 &'
+alias tour='xdg-open https://deadplug.digital/showcase >/dev/null 2>&1 &'
+alias ops='xdg-open https://deadplug.digital/ops >/dev/null 2>&1 &'
+alias status='xdg-open https://status.deadplug.digital >/dev/null 2>&1 &'
+
+# ---- one mild burn -------------------------------------------------------
+alias please='sudo'
+alias mybad='sudo $(fc -ln -1)'

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- progress fill — 1×2 bright red. plymouth scales this horizontally
+     to whatever progress fraction the boot is at. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 2" width="1" height="2">
+  <rect width="1" height="2" fill="#ff2222"/>
+</svg>

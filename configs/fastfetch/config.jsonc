@@ -1,0 +1,56 @@
+// dpos / fastfetch — deadplug.digital sysinfo card.
+// Renders our ANSI logo on the left, a small red-keyed module stack
+// on the right. https://github.com/fastfetch-cli/fastfetch
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+
+  "logo": {
+    "source": "~/.local/share/dpos/logo.ans",
+    "type": "raw",
+    "padding": { "right": 4 },
+    "color": { "1": "red" }
+  },
+
+  "display": {
+    "separator": " :: ",
+    "color": {
+      "keys": "red",
+      "title": "bright_red"
+    },
+    "key": { "width": 8 }
+  },
+
+  "modules": [
+    {
+      "type": "title",
+      "format": "{user-name-colored}@{host-name-colored}"
+    },
+    "separator",
+    { "type": "os",      "key": "os",     "format": "{name} {version-id} ({codename})" },
+    { "type": "kernel",  "key": "kernel" },
+    { "type": "host",    "key": "host" },
+    { "type": "uptime",  "key": "up" },
+    { "type": "packages","key": "pkgs" },
+    { "type": "shell",   "key": "shell" },
+    { "type": "wm",      "key": "wm" },
+    { "type": "terminal","key": "term" },
+    { "type": "display", "key": "res" },
+    { "type": "cpu",     "key": "cpu", "format": "{name} ({cores} cores)" },
+    { "type": "memory",  "key": "mem" },
+    { "type": "swap",    "key": "swap" },
+    { "type": "disk",    "key": "disk", "folders": "/" },
+    { "type": "localip", "key": "ip" },
+    {
+      "type": "command",
+      "key": "temp",
+      "shell": "sh",
+      "text": "vcgencmd measure_temp 2>/dev/null | sed 's/temp=//' || awk '{printf \"%.1f°C\", $1/1000}' /sys/class/thermal/thermal_zone0/temp 2>/dev/null"
+    },
+    "break",
+    {
+      "type": "colors",
+      "paddingLeft": 9,
+      "symbol": "circle"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  dpos wallpaper — deadplug.digital
+  scales cleanly to any monitor; rsvg-convert renders to PNG at install time.
+  black field, red bloom from below, scanlines, faint 48px grid, central sigil.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080"
+     preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- background gradient — top near-black, bottom faint red bloom -->
+    <radialGradient id="bloom" cx="50%" cy="115%" r="80%">
+      <stop offset="0%"   stop-color="#3a0000" stop-opacity="0.9"/>
+      <stop offset="35%"  stop-color="#1a0000" stop-opacity="0.6"/>
+      <stop offset="65%"  stop-color="#080000" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.0"/>
+    </radialGradient>
+
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%"  stop-color="#080808"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </linearGradient>
+
+    <!-- 48px grid -->
+    <pattern id="grid" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#cc0000" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+
+    <!-- scanlines -->
+    <pattern id="scan" x="0" y="0" width="1" height="4" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="1" height="1" fill="#000000" fill-opacity="0.16"/>
+    </pattern>
+
+    <!-- subtle vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="80%">
+      <stop offset="60%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
+    </radialGradient>
+
+    <!-- soft glow filter for the sigil text -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#bloom)"/>
+  <rect width="1920" height="1080" fill="url(#grid)"/>
+
+  <!-- central sigil: skull-plug-bolt simplified -->
+  <g transform="translate(960 520)" filter="url(#glow)">
+
+    <!-- outer red ring -->
+    <circle r="170" fill="none" stroke="#cc0000" stroke-opacity="0.45" stroke-width="2"/>
+    <circle r="148" fill="none" stroke="#cc0000" stroke-opacity="0.20" stroke-width="1"/>
+
+    <!-- plug body (rounded rect) -->
+    <rect x="-72" y="-78" width="144" height="120" rx="14" ry="14"
+          fill="#0a0a0a" stroke="#cc0000" stroke-width="3"/>
+
+    <!-- skull face on the plug -->
+    <!-- eye sockets -->
+    <circle cx="-26" cy="-32" r="11" fill="#000000" stroke="#cc0000" stroke-width="2"/>
+    <circle cx="26"  cy="-32" r="11" fill="#000000" stroke="#cc0000" stroke-width="2"/>
+    <!-- nose -->
+    <path d="M -6 -6 L 0 8 L 6 -6 Z" fill="#cc0000"/>
+    <!-- teeth -->
+    <line x1="-18" y1="22" x2="-18" y2="34" stroke="#cc0000" stroke-width="3"/>
+    <line x1="0"   y1="22" x2="0"   y2="34" stroke="#cc0000" stroke-width="3"/>
+    <line x1="18"  y1="22" x2="18"  y2="34" stroke="#cc0000" stroke-width="3"/>
+
+    <!-- two prongs -->
+    <rect x="-30" y="42" width="12" height="22" fill="#cc0000"/>
+    <rect x="18"  y="42" width="12" height="22" fill="#cc0000"/>
+
+    <!-- lightning bolt under the plug -->
+    <path d="M -10 70 L 12 70 L -2 100 L 16 100 L -14 150 L 4 110 L -12 110 Z"
+          fill="#ff2222" stroke="#cc0000" stroke-width="1.5"/>
+  </g>
+
+  <!-- wordmark below the sigil -->
+  <g transform="translate(960 800)" text-anchor="middle"
+     font-family="DejaVu Sans Mono, Cascadia Code, Consolas, monospace">
+    <text y="0" font-size="48" font-weight="900" fill="#dedede" letter-spacing="6">
+      deadplug.digital
+    </text>
+    <text y="34" font-size="14" fill="#880000" letter-spacing="8">
+      // SELF-HOSTED · ZERO TELEMETRY · RED AND BLACK
+    </text>
+  </g>
+
+  <!-- corner marks -->
+  <g stroke="#cc0000" stroke-width="2" fill="none" opacity="0.6">
+    <path d="M 40 40 L 40 80 M 40 40 L 80 40"/>
+    <path d="M 1880 40 L 1880 80 M 1880 40 L 1840 40"/>
+    <path d="M 40 1040 L 40 1000 M 40 1040 L 80 1040"/>
+    <path d="M 1880 1040 L 1880 1000 M 1880 1040 L 1840 1040"/>
+  </g>
+
+  <!-- scanlines on top -->
+  <rect width="1920" height="1080" fill="url(#scan)"/>
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+</svg>

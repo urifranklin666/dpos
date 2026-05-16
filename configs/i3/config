@@ -1,0 +1,176 @@
+# dpos / i3 — deadplug.digital window manager
+# tested against i3 ≥ 4.22 (gaps in mainline)
+# tokens mirror the homepage CSS variables.
+
+set $mod Mod4
+
+# fonts — uses the Cascadia / Fira / DejaVu fallback chain set in 40-fonts.sh
+font pango:Cascadia Code, Symbols Nerd Font 10
+
+# ---- gaps ----
+gaps inner 12
+gaps outer 4
+smart_gaps on
+smart_borders on
+
+# ---- colors (homepage tokens) ----
+# class                 border  bg      text    indicator child_border
+client.focused          #cc0000 #060606 #ffffff #ff2222   #cc0000
+client.focused_inactive #2b0000 #060606 #9a9a9a #2b0000   #2b0000
+client.unfocused        #1c0000 #050505 #606060 #1c0000   #1c0000
+client.urgent           #ff2222 #3a0000 #ffffff #ff2222   #ff2222
+client.placeholder      #1c0000 #060606 #606060 #1c0000   #1c0000
+client.background       #050505
+
+# ---- window decorations ----
+default_border pixel 2
+default_floating_border pixel 2
+hide_edge_borders smart
+title_align left
+for_window [class=".*"] border pixel 2
+
+# ---- floating rules ----
+for_window [window_role="pop-up"]       floating enable
+for_window [window_role="task_dialog"]  floating enable
+for_window [class="Pavucontrol"]        floating enable, resize set 720 480, move position center
+for_window [class="Arandr"]             floating enable
+for_window [title="Picture-in-Picture"] floating enable, sticky enable
+for_window [title="^float$"]            floating enable
+
+# ---- input ----
+focus_follows_mouse no
+mouse_warping output
+
+# ---- terminal / launcher / shortcuts ----
+bindsym $mod+Return     exec --no-startup-id alacritty
+bindsym $mod+d          exec --no-startup-id rofi -show drun
+bindsym $mod+Tab        exec --no-startup-id rofi -show window
+bindsym $mod+grave      exec --no-startup-id rofi -show run
+bindsym $mod+e          exec --no-startup-id alacritty -e ranger
+bindsym $mod+b          exec --no-startup-id ${BROWSER:-xdg-open https://deadplug.digital}
+bindsym $mod+Shift+s    exec --no-startup-id maim -s | xclip -selection clipboard -t image/png
+
+bindsym $mod+Shift+q    kill
+bindsym $mod+Shift+c    reload
+bindsym $mod+Shift+r    restart
+bindsym $mod+Shift+e    exec --no-startup-id i3-nagbar -t warning -m 'quit dpos session?' -B 'yes' 'i3-msg exit'
+
+# ---- focus ----
+bindsym $mod+h          focus left
+bindsym $mod+j          focus down
+bindsym $mod+k          focus up
+bindsym $mod+l          focus right
+bindsym $mod+Left       focus left
+bindsym $mod+Down       focus down
+bindsym $mod+Up         focus up
+bindsym $mod+Right      focus right
+
+# ---- move ----
+bindsym $mod+Shift+h    move left
+bindsym $mod+Shift+j    move down
+bindsym $mod+Shift+k    move up
+bindsym $mod+Shift+l    move right
+bindsym $mod+Shift+Left  move left
+bindsym $mod+Shift+Down  move down
+bindsym $mod+Shift+Up    move up
+bindsym $mod+Shift+Right move right
+
+# ---- split / layout ----
+bindsym $mod+backslash  split h
+bindsym $mod+minus      split v
+bindsym $mod+f          fullscreen toggle
+bindsym $mod+s          layout stacking
+bindsym $mod+w          layout tabbed
+bindsym $mod+t          layout toggle split
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space      focus mode_toggle
+bindsym $mod+a          focus parent
+
+# ---- scratchpad ----
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus       scratchpad show
+
+# ---- workspaces ----
+set $ws1  "1"
+set $ws2  "2"
+set $ws3  "3"
+set $ws4  "4"
+set $ws5  "5"
+set $ws6  "6"
+set $ws7  "7"
+set $ws8  "8"
+set $ws9  "9"
+set $ws10 "10"
+
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
+
+bindsym $mod+n workspace next
+bindsym $mod+p workspace prev
+
+# ---- resize mode ----
+mode "resize" {
+  bindsym h resize shrink width  20 px or 4 ppt
+  bindsym j resize grow   height 20 px or 4 ppt
+  bindsym k resize shrink height 20 px or 4 ppt
+  bindsym l resize grow   width  20 px or 4 ppt
+  bindsym Left  resize shrink width  20 px or 4 ppt
+  bindsym Down  resize grow   height 20 px or 4 ppt
+  bindsym Up    resize shrink height 20 px or 4 ppt
+  bindsym Right resize grow   width  20 px or 4 ppt
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+  bindsym $mod+r mode "default"
+}
+bindsym $mod+r mode "resize"
+
+# ---- gaps mode ----
+mode "gaps" {
+  bindsym o gaps outer current plus 4
+  bindsym Shift+o gaps outer current minus 4
+  bindsym i gaps inner current plus 4
+  bindsym Shift+i gaps inner current minus 4
+  bindsym 0 gaps inner current set 12; gaps outer current set 4
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+}
+bindsym $mod+g mode "gaps"
+
+# ---- media keys ----
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute        exec --no-startup-id pactl set-sink-mute   @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute     exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle
+bindsym XF86MonBrightnessUp   exec --no-startup-id brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+
+# ---- autostart ----
+exec --no-startup-id picom --config ~/.config/picom/picom.conf
+exec --no-startup-id ~/.config/polybar/launch.sh
+exec --no-startup-id dunst
+exec --no-startup-id nm-applet
+exec --no-startup-id feh --no-fehbg --bg-fill ~/.local/share/dpos/wallpapers/deadplug.png
+exec --no-startup-id conky -c ~/.config/conky/conky.conf
+exec --no-startup-id xset s off -dpms
+exec_always --no-startup-id xsetroot -solid '#050505'
+
+# i3bar is disabled — polybar takes its place.

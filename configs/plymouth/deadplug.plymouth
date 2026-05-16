@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=deadplug
+Description=deadplug.digital boot splash — black, red, dry.
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/deadplug
+ScriptFile=/usr/share/plymouth/themes/deadplug/deadplug.script

@@ -1,0 +1,131 @@
+# dpos / alacritty — Cascadia Code, transparent, deadplug palette
+# spec: https://alacritty.org/config-alacritty.html
+
+[general]
+live_config_reload = true
+
+[env]
+TERM = "alacritty"
+
+[window]
+opacity            = 0.92
+blur               = false
+padding            = { x = 8, y = 8 }
+dynamic_padding    = false
+decorations        = "full"
+startup_mode       = "Windowed"
+title              = "alacritty"
+dynamic_title      = true
+class              = { instance = "Alacritty", general = "Alacritty" }
+
+[scrolling]
+history    = 5000
+multiplier = 3
+
+[font]
+size = 10.5
+
+[font.normal]
+family = "Cascadia Code"
+style  = "Regular"
+
+[font.bold]
+family = "Cascadia Code"
+style  = "Bold"
+
+[font.italic]
+family = "Cascadia Code"
+style  = "Italic"
+
+[font.bold_italic]
+family = "Cascadia Code"
+style  = "Bold Italic"
+
+[font.offset]
+x = 0
+y = 1
+
+[font.glyph_offset]
+x = 0
+y = 1
+
+[bell]
+animation = "EaseOutExpo"
+color     = "#cc0000"
+duration  = 80
+
+[cursor]
+style        = { shape = "Beam", blinking = "On" }
+unfocused_hollow = true
+thickness    = 0.18
+blink_interval = 600
+
+[mouse]
+hide_when_typing = true
+
+[selection]
+save_to_clipboard = true
+
+# ---- colors — deadplug.digital -------------------------------------------
+[colors.primary]
+background = "#060606"
+foreground = "#dedede"
+dim_foreground    = "#9a9a9a"
+bright_foreground = "#ffffff"
+
+[colors.cursor]
+text   = "#060606"
+cursor = "#ff2222"
+
+[colors.vi_mode_cursor]
+text   = "#060606"
+cursor = "#cc0000"
+
+[colors.search.matches]
+foreground = "#060606"
+background = "#ffb000"
+[colors.search.focused_match]
+foreground = "#060606"
+background = "#cc0000"
+
+[colors.footer_bar]
+foreground = "#dedede"
+background = "#101010"
+
+[colors.line_indicator]
+foreground = "#cc0000"
+background = "None"
+
+[colors.selection]
+text       = "#dedede"
+background = "#3a0000"
+
+[colors.normal]
+black   = "#0a0a0a"
+red     = "#cc0000"
+green   = "#22cc44"
+yellow  = "#ffb000"
+blue    = "#5e7eff"
+magenta = "#ff2266"
+cyan    = "#22ccaa"
+white   = "#dedede"
+
+[colors.bright]
+black   = "#2b0000"
+red     = "#ff2222"
+green   = "#3ddb59"
+yellow  = "#ffcb44"
+blue    = "#88a6ff"
+magenta = "#ff5588"
+cyan    = "#55e6c8"
+white   = "#ffffff"
+
+[colors.dim]
+black   = "#050505"
+red     = "#880000"
+green   = "#1a8c34"
+yellow  = "#aa7300"
+blue    = "#3c5cbb"
+magenta = "#aa1d50"
+cyan    = "#1a8a7c"
+white   = "#9a9a9a"

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- dpos plymouth — wordmark "deadplug.digital" in brand mono.
+     Rendered separately so the plymouth script can apply a chromatic-split
+     glitch on it without affecting the sigil. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 70" width="720" height="70">
+  <text x="360" y="50" text-anchor="middle"
+        font-family="DejaVu Sans Mono, Cascadia Code, monospace"
+        font-size="44" font-weight="900" letter-spacing="6"
+        fill="#dedede">deadplug.digital</text>
+</svg>

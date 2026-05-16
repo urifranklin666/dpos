@@ -1,0 +1,119 @@
+/*
+ * dpos / rofi theme — deadplug.digital
+ * tokens mirror /homepage CSS variables.
+ */
+
+* {
+  bg          : #060606;
+  bg-alt      : #0a0a0a;
+  surface     : #101010;
+  border-col  : #cc0000;
+  border-mid  : #2b0000;
+  fg          : #dedede;
+  fg-dim      : #606060;
+  fg-mid      : #9a9a9a;
+  red         : #cc0000;
+  red-br      : #ff2222;
+  red-dim     : #880000;
+  red-deep    : #3a0000;
+
+  background-color : transparent;
+  text-color       : @fg;
+  font             : "Cascadia Code 11";
+}
+
+window {
+  width:            520px;
+  border:           1px;
+  border-color:     @border-col;
+  background-color: @bg;
+  padding:          0;
+  location:         center;
+  anchor:           center;
+  transparency:     "real";
+}
+
+mainbox {
+  background-color: @bg;
+  padding:          0;
+  children:         [ "inputbar", "message", "listview" ];
+}
+
+inputbar {
+  background-color: @bg-alt;
+  border-color:     @red;
+  border:           0 0 1px 0;
+  padding:          10px 12px;
+  spacing:          8px;
+  children:         [ "prompt", "textbox-prompt-colon", "entry" ];
+}
+
+prompt {
+  text-color:       @red-br;
+  font:             "Cascadia Code Bold 11";
+}
+
+textbox-prompt-colon {
+  expand:           false;
+  str:              "▌";
+  text-color:       @red;
+}
+
+entry {
+  text-color:       @fg;
+  placeholder:      "search…";
+  placeholder-color: @fg-dim;
+  cursor:           text;
+}
+
+message {
+  border:           0;
+  padding:          6px 12px;
+  background-color: @surface;
+}
+textbox {
+  text-color:       @fg-mid;
+  background-color: transparent;
+}
+
+listview {
+  background-color: @bg;
+  padding:          6px 0;
+  spacing:          0;
+  lines:            8;
+  columns:          1;
+  fixed-height:     false;
+  dynamic:          true;
+  scrollbar:        false;
+  cycle:            true;
+}
+
+element {
+  padding:          6px 14px;
+  spacing:          8px;
+  cursor:           pointer;
+}
+
+element normal.normal {
+  background-color: @bg;
+  text-color:       @fg;
+}
+element selected.normal {
+  background-color: @red-deep;
+  text-color:       @fg;
+  border:           0 0 0 2px;
+  border-color:     @red-br;
+}
+element alternate.normal {
+  background-color: @bg;
+  text-color:       @fg-mid;
+}
+element-text {
+  background-color: transparent;
+  text-color:       inherit;
+  vertical-align:   0.5;
+}
+element-icon {
+  background-color: transparent;
+  size:             1em;
+}
