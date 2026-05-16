@@ -37,7 +37,7 @@ main, so the kit works on either codename.
 | tmux                             | arm64    | |
 | jq                               | arm64    | |
 | fonts-dejavu, fonts-dejavu-extra | all      | |
-| policykit-1                      | arm64    | |
+| polkitd                          | arm64    | renamed from `policykit-1` in Trixie (transitional pkg dropped). |
 | acl                              | arm64    | |
 | imagemagick                      | arm64    | for asset rasterization fallbacks |
 | librsvg2-bin                     | arm64    | `rsvg-convert`, used by 80-plymouth.sh |

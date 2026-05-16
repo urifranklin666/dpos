@@ -28,7 +28,7 @@ readonly BASE_PKGS=(
   htop btop tmux
   jq xz-utils
   fonts-dejavu fonts-dejavu-extra
-  policykit-1 acl
+  polkitd acl
   imagemagick librsvg2-bin
 )
 
