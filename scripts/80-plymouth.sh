@@ -82,14 +82,43 @@ render ember           24        24
 # legacy filename used by some tools
 run sudo cp "${theme_dir}/logo.png" "${theme_dir}/box.png" 2>/dev/null || true
 
-# ---- register theme via update-alternatives -------------------------------
-log_info "registering deadplug plymouth theme"
-run sudo update-alternatives --install \
-  /usr/share/plymouth/themes/default.plymouth default.plymouth \
-  "${theme_dir}/deadplug.plymouth" 200
+# ---- include vc4 in the initramfs ----------------------------------------
+# Without the Pi's KMS driver loaded in the initrd, plymouth comes up
+# before /dev/dri/* exists and falls back to text mode (the dreaded
+# "black screen with three dots"). Listing vc4 in
+# /etc/initramfs-tools/modules forces it into the initrd.
+INITRD_MODULES="/etc/initramfs-tools/modules"
+if [[ -f "${INITRD_MODULES}" ]] || sudo test -f "${INITRD_MODULES}"; then
+  for mod in vc4 simplefb; do
+    if ! sudo grep -qE "^${mod}\b" "${INITRD_MODULES}"; then
+      printf '%s\n' "${mod}" | run sudo tee -a "${INITRD_MODULES}" >/dev/null
+      log_ok "added ${mod} to ${INITRD_MODULES}"
+    else
+      log_skip "${mod} already in initramfs modules"
+    fi
+  done
+fi
 
-run sudo update-alternatives --set default.plymouth \
-  "${theme_dir}/deadplug.plymouth"
+# ---- register theme + rebuild initramfs ----------------------------------
+# plymouth-set-default-theme is Debian's canonical setter: it updates the
+# alternative AND rebuilds the initramfs in one atomic step, ensuring the
+# theme assets actually make it into the early-boot environment.
+log_info "registering deadplug theme and rebuilding initramfs"
+if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+  run sudo plymouth-set-default-theme deadplug -R
+  log_ok "plymouth-set-default-theme deadplug -R"
+else
+  # Fallback: the old two-step dance
+  log_warn "plymouth-set-default-theme missing; using update-alternatives fallback"
+  run sudo update-alternatives --install \
+    /usr/share/plymouth/themes/default.plymouth default.plymouth \
+    "${theme_dir}/deadplug.plymouth" 200
+  run sudo update-alternatives --set default.plymouth \
+    "${theme_dir}/deadplug.plymouth"
+  if command -v update-initramfs >/dev/null 2>&1; then
+    run sudo update-initramfs -u || log_warn "update-initramfs returned non-zero"
+  fi
+fi
 
 # ---- kernel cmdline: quiet splash, suppress serial-console plymouth -------
 cmdline="/boot/firmware/cmdline.txt"
@@ -104,13 +133,31 @@ if [[ -w "${cmdline}" ]] || sudo test -w "${cmdline}"; then
   fi
 fi
 
-# ---- initramfs ------------------------------------------------------------
-if command -v update-initramfs >/dev/null 2>&1; then
-  log_info "rebuilding initramfs (Pi takes ~10s)"
-  run sudo update-initramfs -u || log_warn "update-initramfs returned non-zero"
+# ---- config.txt: make sure firmware loads the initramfs -----------------
+# Pi OS uses auto_initramfs=1 by default, but defensively assert it.
+cfg="$(config_txt_path)"
+if [[ -n "${cfg}" ]]; then
+  if ! sudo grep -qE '^[[:space:]]*auto_initramfs' "${cfg}"; then
+    printf '\n# dpos: tell the firmware to load the initrd\nauto_initramfs=1\n' \
+      | run sudo tee -a "${cfg}" >/dev/null
+    log_ok "set auto_initramfs=1 in ${cfg}"
+  else
+    log_skip "auto_initramfs already set in ${cfg}"
+  fi
+fi
+
+# ---- sanity dump ----------------------------------------------------------
+active_theme="$(sudo readlink -f /etc/alternatives/default.plymouth 2>/dev/null || true)"
+log_info "active plymouth theme symlink: ${active_theme:-<unknown>}"
+if sudo ls /usr/share/plymouth/themes/deadplug/*.png >/dev/null 2>&1; then
+  count=$(sudo find /usr/share/plymouth/themes/deadplug -name '*.png' | wc -l)
+  log_ok "deadplug theme has ${count} PNG assets installed"
+else
+  log_warn "no PNG assets in /usr/share/plymouth/themes/deadplug — rsvg-convert may have failed silently"
 fi
 
 # ---- preview test (optional) ----------------------------------------------
-log_info "you can preview without rebooting with:  sudo plymouthd; sudo plymouth --show-splash; sleep 5; sudo plymouth --quit"
+log_info "preview without reboot:  sudo plymouthd; sudo plymouth --show-splash; sleep 5; sudo plymouth --quit"
+log_info "diagnose if it stays black: sudo plymouthd --debug-file=/tmp/plymouth.log; sudo plymouth --show-splash; sleep 3; sudo plymouth --quit; less /tmp/plymouth.log"
 
 log_ok "plymouth theme installed"
