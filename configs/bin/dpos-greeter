@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# dpos-greeter — first-boot ritual.
+# Launched by i3 once after install. A marker file prevents replay.
+# Override with DPOS_GREETER_ALWAYS=1 to show on every login.
+
+set -u
+
+MARKER="${HOME}/.local/share/dpos/.greeted"
+
+if [[ -z "${DPOS_GREETER_ALWAYS:-}" && -f "${MARKER}" ]]; then
+  # Already greeted; exit silently. The alacritty wrapper will close.
+  exit 0
+fi
+
+mkdir -p "$(dirname "${MARKER}")"
+
+# Brand red on a black field
+RED=$'\033[38;5;160m'
+RED_BR=$'\033[38;5;196m'
+DIM=$'\033[2m'
+BOLD=$'\033[1m'
+GREY=$'\033[38;5;240m'
+SILVER=$'\033[38;5;255m'
+RESET=$'\033[0m'
+
+clear
+
+if command -v fastfetch >/dev/null 2>&1; then
+  fastfetch || true
+fi
+
+# A single, dry line. No usage tips, no "welcome".
+printf '\n'
+printf '  %s%s// the daemons are in their places. you may begin.%s\n' "${RED}" "${BOLD}" "${RESET}"
+printf '\n'
+printf '  %s%s// %sMod+Return%s   %sterminal%s\n'   "${RED}" "" "${SILVER}" "${RESET}" "${GREY}" "${RESET}"
+printf '  %s%s// %sMod+d%s        %srofi%s\n'       "${RED}" "" "${SILVER}" "${RESET}" "${GREY}" "${RESET}"
+printf '  %s%s// %sMod+x%s        %slock%s\n'       "${RED}" "" "${SILVER}" "${RESET}" "${GREY}" "${RESET}"
+printf '  %s%s// %sMod+Shift+e%s  %sexit i3%s\n'    "${RED}" "" "${SILVER}" "${RESET}" "${GREY}" "${RESET}"
+printf '\n'
+
+touch "${MARKER}"
+
+# Drop the user into an interactive shell so the terminal stays open
+exec "${SHELL:-/bin/zsh}" -i

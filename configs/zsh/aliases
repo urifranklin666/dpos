@@ -70,8 +70,10 @@ alias clock='vcgencmd measure_clock arm 2>/dev/null'
 
 # ---- session control ----------------------------------------------------
 alias e3='i3-msg exit'
-alias relock='i3lock -c 050505'
-alias deathmask='cmatrix -ab -C red'           # screen saver mode
+alias relock='dpos-lock'
+alias rite='dpos-rite'                          # today's rite, on demand
+alias onair='dpos-onair'                        # // ON AIR check (silent if not)
+alias deathmask='cmatrix -ab -C red'            # screen saver mode
 alias pipes='pipes.sh -t 2 -p 3 -f 60'
 
 # ---- brand-flavored shutdown --------------------------------------------

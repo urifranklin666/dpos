@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# dpos-rite — emit one rite from the corpus, rotating once per day.
+# Deterministic: same day-of-year → same rite. Used by conky and anywhere
+# else that wants a one-liner of brand-aligned operator instruction.
+
+set -u
+RITES="${DPOS_RITES:-${HOME}/.local/share/dpos/rites.txt}"
+
+if [[ ! -r "${RITES}" ]]; then
+  printf '%s' 'the corpus is silent.'
+  exit 0
+fi
+
+total=$(grep -cv '^[[:space:]]*\(#\|$\)' "${RITES}")
+if [[ "${total:-0}" -le 0 ]]; then
+  printf '%s' 'the corpus is silent.'
+  exit 0
+fi
+
+# Day-of-year (force base-10 to handle leading zeros), zero-indexed
+day=$(date +%j)
+pick=$(( (10#${day} - 1) % total + 1 ))
+
+awk -v n="${pick}" '
+  /^[[:space:]]*$/ { next }
+  /^[[:space:]]*#/ { next }
+  { i++; if (i == n) { print; exit } }
+' "${RITES}"

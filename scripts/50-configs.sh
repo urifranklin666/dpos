@@ -60,4 +60,21 @@ mkdir -p "${HOME}/.local/share/dpos"
 cp "${DPOS_DIR}/assets/ansi/deadplug-logo.txt" "${HOME}/.local/share/dpos/logo.ans"
 log_ok "deployed ANSI logo"
 
+# Deploy the rites corpus — daily rotation by dpos-rite
+mkdir -p "${HOME}/.local/share/dpos"
+cp "${DPOS_DIR}/assets/rites/dpos-rites.txt" "${HOME}/.local/share/dpos/rites.txt"
+log_ok "deployed rites corpus ($(wc -l <"${HOME}/.local/share/dpos/rites.txt") lines)"
+
+# Deploy helper scripts into ~/.local/bin/ so they're on PATH and tab-complete
+mkdir -p "${HOME}/.local/bin"
+for script in "${DPOS_DIR}/configs/bin/"*; do
+  name="$(basename "${script}")"
+  dest="${HOME}/.local/bin/${name}"
+  if [[ -e "${dest}" ]]; then
+    backup_path "${dest}"
+  fi
+  install -m 0755 "${script}" "${dest}"
+done
+log_ok "deployed helpers to ~/.local/bin ($(ls "${HOME}/.local/bin/dpos-"* 2>/dev/null | wc -l) scripts)"
+
 log_ok "configs deployed"

@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# dpos-lock — render a blurred wallpaper with the // AUTHENTICATE prompt
+# baked in, then hand off to i3lock-color (or basic i3lock as a fallback).
+#
+# The composited image is cached at ~/.cache/dpos/lock.png and re-rendered
+# only when the source wallpaper changes.
+
+set -euo pipefail
+
+CACHE_DIR="${HOME}/.cache/dpos"
+mkdir -p "${CACHE_DIR}"
+
+SRC="${HOME}/.local/share/dpos/wallpapers/deadplug.png"
+OUT="${CACHE_DIR}/lock.png"
+
+# Resolve a fallback source if the brand wallpaper isn't present
+if [[ ! -f "${SRC}" ]]; then
+  # Take a screenshot as a last resort so we always have *something* to blur
+  TMP="$(mktemp --suffix=.png)"
+  if command -v maim >/dev/null 2>&1; then
+    maim "${TMP}" >/dev/null 2>&1 || true
+  elif command -v scrot >/dev/null 2>&1; then
+    scrot "${TMP}" >/dev/null 2>&1 || true
+  fi
+  if [[ -s "${TMP}" ]]; then
+    SRC="${TMP}"
+  else
+    # Worst case: solid black image
+    SRC="${CACHE_DIR}/black.png"
+    convert -size 1920x1080 xc:'#060606' "${SRC}" 2>/dev/null || true
+  fi
+fi
+
+# Detect screen resolution (falls back to the source image's size, then 1920x1080)
+res=""
+if command -v xdpyinfo >/dev/null 2>&1 && [[ -n "${DISPLAY:-}" ]]; then
+  res=$(xdpyinfo 2>/dev/null | awk '/dimensions:/ {print $2; exit}')
+fi
+if [[ -z "${res}" ]]; then
+  res=$(identify -format '%wx%h' "${SRC}" 2>/dev/null || echo "1920x1080")
+fi
+
+# Render only when the source is newer than the cached lock image
+if [[ ! -f "${OUT}" || "${SRC}" -nt "${OUT}" ]]; then
+  TMP_BLUR="$(mktemp --suffix=.png)"
+
+  # Blur + darken
+  convert "${SRC}" \
+    -resize "${res}^" -gravity center -extent "${res}" \
+    -blur 0x14 \
+    -fill '#000000' -colorize 35% \
+    "${TMP_BLUR}"
+
+  # Add // AUTHENTICATE prompt and a thin red rule
+  w="${res%x*}"
+  h="${res#*x}"
+  rule_y=$(( h / 2 + 16 ))
+
+  convert "${TMP_BLUR}" \
+    -font DejaVu-Sans-Mono-Bold \
+    -pointsize 22 \
+    -fill '#ff2222' \
+    -gravity center \
+    -annotate +0+0 "// AUTHENTICATE" \
+    -fill '#cc0000' \
+    -draw "rectangle $((w/2 - 70)),${rule_y} $((w/2 + 70)),$((rule_y + 1))" \
+    "${OUT}"
+
+  rm -f "${TMP_BLUR}"
+fi
+
+# Prefer i3lock-color when available — gives us font/color control over the
+# password ring and date/time overlay.
+if command -v i3lock-color >/dev/null 2>&1; then
+  exec i3lock-color \
+    --image="${OUT}" \
+    --ignore-empty-password \
+    --inside-color=00000000 --insidever-color=00000000 --insidewrong-color=00000000 \
+    --ring-color=cc0000ff --ringver-color=ff2222ff --ringwrong-color=ff2222ff \
+    --line-uses-ring \
+    --keyhl-color=ffffffff --bshl-color=ff2222ff \
+    --separator-color=00000000 \
+    --verif-color=ffffffff --wrong-color=ff2222ff \
+    --time-str="%H:%M" --date-str="%Y-%m-%d  //  authenticate" \
+    --time-color=ffffffff --date-color=9a9a9aff \
+    --time-font="DejaVu Sans Mono" --date-font="DejaVu Sans Mono" \
+    --time-size=46 --date-size=12 \
+    --time-pos="x+w/2:y+h-260" --date-pos="x+w/2:y+h-228" \
+    --indicator --radius=110 --ring-width=2 --pass-media-keys
+elif command -v i3lock >/dev/null 2>&1; then
+  exec i3lock -i "${OUT}" -e -t
+else
+  printf 'dpos-lock: no i3lock binary found\n' >&2
+  exit 127
+fi

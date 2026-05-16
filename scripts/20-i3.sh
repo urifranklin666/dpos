@@ -34,6 +34,16 @@ readonly I3_PKGS=(
 log_info "installing i3 stack (${#I3_PKGS[@]} pkgs)"
 run sudo apt-get -y -qq install --no-install-recommends "${I3_PKGS[@]}"
 
+# i3lock-color is an optional drop-in upgrade for the basic i3lock. We try
+# it after the mandatory install so the stage doesn't fail if it's missing.
+if apt-cache show i3lock-color >/dev/null 2>&1; then
+  log_info "installing i3lock-color (better lock screen typography)"
+  run sudo apt-get -y -qq install --no-install-recommends i3lock-color \
+    || log_warn "i3lock-color failed to install; keeping basic i3lock"
+else
+  log_skip "i3lock-color not in apt repos; keeping basic i3lock"
+fi
+
 # Verify i3 has gaps support (mainline ≥ 4.22)
 if command -v i3 >/dev/null 2>&1; then
   ver="$(i3 --version 2>/dev/null | awk '{print $3}' | head -n1)"

@@ -1,0 +1,33 @@
+# dpos rites — one is selected each day by dpos-rite.
+# Lines starting with '#' are ignored, as are blank lines.
+# Voice: dry, instructive, faintly liturgical. No emojis. No exclamation.
+today: read one man page in full. no skimming.
+today: perform the rite of the morning ping. send three. expect nothing.
+today: roll the dice on a fresh apt upgrade.
+today: prune one container image you will never use.
+today: stare into journalctl until it blinks first.
+today: ssh into a server with no purpose. just to see it.
+today: rename one variable for clarity. only one.
+today: write a comment explaining why something is broken.
+today: commit something with the message "wip". break the cycle next time.
+today: read the Codex entry for the Archivist out loud.
+today: light a candle for the firmware.
+today: refuse one CI failure. it can wait.
+today: tell the kernel you forgive it.
+today: open the honeypot. read the visitor wall in silence.
+today: stream nothing. let the camera be on. let the camera be off.
+today: do not run a single docker compose down today.
+today: feed the moth. it is hungry.
+today: write a fortune. add it to the deck.
+today: bury one project you have not touched in a year. write its eulogy.
+today: count the embers.
+today: do not refresh the dashboard. trust the alert.
+today: leave one error untouched. it is not your hour.
+today: ask the silent watcher a question. do not wait for the answer.
+today: open /numbers. let the broadcast run for a full minute.
+today: send one tube. say nothing important.
+today: visit the cemetery. read three eulogies.
+today: speak to nginx like an old friend.
+today: re-read your own most recent commit message. wince. continue.
+today: do not update the firmware today.
+today: the rite was performed correctly. the rite was performed twice.

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# dpos-onair — polybar tally. Echoes "// ON AIR" when the configured
+# stream URL reports online; silent otherwise.
+#
+# Default endpoint is owncast's /api/status on live.deadplug.digital.
+# Override with $DPOS_ONAIR_URL.
+#
+# Designed to be cheap: 2s connect timeout, no retries, graceful no-op if
+# offline. Polybar runs this every few seconds.
+
+set -u
+URL="${DPOS_ONAIR_URL:-https://live.deadplug.digital/api/status}"
+
+# Bail fast if we have no route
+ip route get 1.1.1.1 >/dev/null 2>&1 || exit 0
+
+resp="$(curl -fsS --connect-timeout 1 --max-time 2 "${URL}" 2>/dev/null || true)"
+[[ -z "${resp}" ]] && exit 0
+
+if command -v jq >/dev/null 2>&1; then
+  state="$(printf '%s' "${resp}" | jq -r '.online // false' 2>/dev/null)"
+else
+  if printf '%s' "${resp}" | grep -qE '"online"[[:space:]]*:[[:space:]]*true'; then
+    state="true"
+  else
+    state="false"
+  fi
+fi
+
+if [[ "${state}" == "true" ]]; then
+  printf '%s' '// ON AIR'
+fi

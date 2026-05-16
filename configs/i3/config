@@ -49,6 +49,7 @@ bindsym $mod+grave      exec --no-startup-id rofi -show run
 bindsym $mod+e          exec --no-startup-id alacritty -e ranger
 bindsym $mod+b          exec --no-startup-id ${BROWSER:-xdg-open https://deadplug.digital}
 bindsym $mod+Shift+s    exec --no-startup-id maim -s | xclip -selection clipboard -t image/png
+bindsym $mod+x          exec --no-startup-id ~/.local/bin/dpos-lock
 
 bindsym $mod+Shift+q    kill
 bindsym $mod+Shift+c    reload
@@ -172,5 +173,10 @@ exec --no-startup-id feh --no-fehbg --bg-fill ~/.local/share/dpos/wallpapers/dea
 exec --no-startup-id conky -c ~/.config/conky/conky.conf
 exec --no-startup-id xset s off -dpms
 exec_always --no-startup-id xsetroot -solid '#050505'
+
+# First-boot ritual — opens a held terminal on ws1 with fastfetch + dry
+# greeting. dpos-greeter is idempotent: a marker file at
+# ~/.local/share/dpos/.greeted prevents replay on subsequent logins.
+exec --no-startup-id alacritty -e ~/.local/bin/dpos-greeter
 
 # i3bar is disabled — polybar takes its place.
