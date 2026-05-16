@@ -1,0 +1,220 @@
+#!/usr/bin/env bash
+# dpos-status — live dashboard for this Pi. Refreshes every 2s.
+# Press q to quit, r to force redraw.
+#
+# Layout (fits 80x30):
+#   ════════════════════════════════════════════════════════════════════════
+#     // dpos · operator console · status                          14:32:07
+#   ════════════════════════════════════════════════════════════════════════
+#     // BOX             host, kernel, uptime, load
+#     // RESOURCES       cpu/mem/disk bars + temp
+#     // NETWORK         eth/wlan addresses
+#     // DEADPLUG.DIGITAL  remote reachability + on-air check
+#     // TODAY           today's rite
+#   ════════════════════════════════════════════════════════════════════════
+#     ▌ press q to quit · r to redraw
+
+set -u
+
+RED=$'\033[38;5;160m'
+RED_BR=$'\033[38;5;196m'
+RED_DIM=$'\033[38;5;88m'
+RED_DEEP=$'\033[38;5;52m'
+DIM=$'\033[38;5;240m'
+MID=$'\033[38;5;247m'
+SILVER=$'\033[38;5;253m'
+WHITE=$'\033[38;5;255m'
+GREEN=$'\033[38;5;34m'
+AMBER=$'\033[38;5;214m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
+# trap clean exit
+trap 'tput cnorm 2>/dev/null; printf "\n"; exit 0' INT TERM
+
+bar() {
+  # bar <percent> <width>
+  local pct="${1:-0}" width="${2:-22}"
+  local filled=$(( (pct * width + 50) / 100 ))
+  (( filled > width )) && filled=${width}
+  (( filled < 0 )) && filled=0
+  local empty=$(( width - filled ))
+  printf '%s' "${RED}"
+  printf '█%.0s' $(seq 1 ${filled} 2>/dev/null || true)
+  printf '%s' "${RED_DEEP}"
+  printf '░%.0s' $(seq 1 ${empty} 2>/dev/null || true)
+  printf '%s' "${RESET}"
+}
+
+dot() {
+  # dot ok|fail|silent  →  colored ●/○
+  case "$1" in
+    ok)     printf '%s●%s' "${GREEN}"  "${RESET}" ;;
+    fail)   printf '%s●%s' "${RED_BR}" "${RESET}" ;;
+    silent) printf '%s○%s' "${DIM}"    "${RESET}" ;;
+    *)      printf '%s○%s' "${MID}"    "${RESET}" ;;
+  esac
+}
+
+rule() {
+  local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
+  printf '%s' "${RED}"
+  printf '═%.0s' $(seq 1 "${cols}")
+  printf '%s\n' "${RESET}"
+}
+
+probe_url() {
+  # probe_url <url> [timeout]
+  local url="$1" timeout="${2:-1}"
+  if ip route get 1.1.1.1 >/dev/null 2>&1; then
+    if curl -fsS --connect-timeout "${timeout}" --max-time "$((timeout+1))" \
+         -o /dev/null "${url}" 2>/dev/null; then
+      echo "ok"; return 0
+    fi
+  fi
+  echo "fail"
+}
+
+render() {
+  tput clear
+  tput cup 0 0
+
+  local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
+
+  # --- header ---
+  rule
+  printf '  %s%s// dpos · operator console · status%s' "${BOLD}" "${RED_BR}" "${RESET}"
+  local now="$(date +%H:%M:%S)"
+  local pad=$(( cols - 41 - ${#now} ))
+  (( pad < 1 )) && pad=1
+  printf '%*s%s%s%s\n' "${pad}" '' "${MID}" "${now}" "${RESET}"
+  rule
+  printf '\n'
+
+  # --- BOX ---
+  printf '  %s// BOX%s\n' "${RED}" "${RESET}"
+  printf '    %shost%s     %s%s%s\n'   "${MID}" "${RESET}" "${SILVER}" "$(hostname -s 2>/dev/null)" "${RESET}"
+  printf '    %skernel%s   %s%s %s%s\n' "${MID}" "${RESET}" "${SILVER}" "$(uname -r)" "$(uname -m)" "${RESET}"
+  local up
+  up=$(awk '
+    { secs=$1 }
+    END {
+      d=int(secs/86400); h=int((secs%86400)/3600); m=int((secs%3600)/60)
+      if (d>0) printf "%dd %dh", d, h
+      else if (h>0) printf "%dh %dm", h, m
+      else printf "%dm", m
+    }' /proc/uptime 2>/dev/null)
+  printf '    %suptime%s   %s%s%s\n' "${MID}" "${RESET}" "${SILVER}" "${up}" "${RESET}"
+  local load
+  load=$(awk '{printf "%s · %s · %s", $1, $2, $3}' /proc/loadavg 2>/dev/null)
+  printf '    %sload%s     %s%s%s\n' "${MID}" "${RESET}" "${SILVER}" "${load}" "${RESET}"
+  printf '\n'
+
+  # --- RESOURCES ---
+  printf '  %s// RESOURCES%s\n' "${RED}" "${RESET}"
+
+  # CPU
+  local cpu_pct
+  cpu_pct=$(awk '
+    NR==1 { for(i=2;i<=NF;i++) v[i]=$i; total=v[2]+v[3]+v[4]+v[5]+v[6]+v[7]+v[8]+v[9]; idle=v[5]+v[6] }
+    END { printf "%.0f", (1 - idle/total) * 100 }
+  ' /proc/stat 2>/dev/null)
+  cpu_pct=${cpu_pct:-0}
+  printf '    %scpu%s      ' "${MID}" "${RESET}"; bar "${cpu_pct}" 24
+  printf '  %s%3s%%%s\n' "${SILVER}" "${cpu_pct}" "${RESET}"
+
+  # MEM
+  local mem_total mem_avail mem_used_pct mem_used_gb mem_total_gb
+  mem_total=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
+  mem_avail=$(awk '/^MemAvailable:/ {print $2}' /proc/meminfo)
+  mem_used_pct=$(( 100 - (mem_avail * 100 / mem_total) ))
+  mem_used_gb=$(awk -v t="${mem_total}" -v a="${mem_avail}" 'BEGIN{printf "%.1f", (t-a)/1024/1024}')
+  mem_total_gb=$(awk -v t="${mem_total}" 'BEGIN{printf "%.1f", t/1024/1024}')
+  printf '    %smem%s      ' "${MID}" "${RESET}"; bar "${mem_used_pct}" 24
+  printf '  %s%3s%%  %sG/%sG%s\n' "${SILVER}" "${mem_used_pct}" "${mem_used_gb}" "${mem_total_gb}" "${RESET}"
+
+  # DISK /
+  local disk_pct disk_used disk_size
+  read -r disk_size disk_used disk_pct < <(df -B1G --output=size,used,pcent / 2>/dev/null | awk 'NR==2 {gsub("%","",$3); print $1, $2, $3}')
+  disk_pct=${disk_pct:-0}
+  printf '    %sdisk /%s   ' "${MID}" "${RESET}"; bar "${disk_pct}" 24
+  printf '  %s%3s%%  %sG/%sG%s\n' "${SILVER}" "${disk_pct}" "${disk_used}" "${disk_size}" "${RESET}"
+
+  # TEMP
+  local temp
+  if command -v vcgencmd >/dev/null 2>&1; then
+    temp=$(vcgencmd measure_temp 2>/dev/null | sed 's/temp=//;s/.C.*//')
+  fi
+  [[ -z "${temp:-}" ]] && temp=$(awk '{printf "%.0f", $1/1000}' /sys/class/thermal/thermal_zone0/temp 2>/dev/null)
+  [[ -z "${temp:-}" ]] && temp="n/a"
+  local temp_color="${SILVER}"
+  if [[ "${temp}" =~ ^[0-9.]+$ ]]; then
+    awk -v t="${temp}" 'BEGIN { exit !(t>=70) }' && temp_color="${AMBER}"
+    awk -v t="${temp}" 'BEGIN { exit !(t>=78) }' && temp_color="${RED_BR}"
+  fi
+  printf '    %stemp%s     %s%sC%s\n' "${MID}" "${RESET}" "${temp_color}" "${temp}" "${RESET}"
+  printf '\n'
+
+  # --- NETWORK ---
+  printf '  %s// NETWORK%s\n' "${RED}" "${RESET}"
+  for iface in eth0 wlan0; do
+    if [[ -d /sys/class/net/${iface} ]]; then
+      local state addr
+      state=$(cat /sys/class/net/${iface}/operstate 2>/dev/null)
+      addr=$(ip -4 -o addr show ${iface} 2>/dev/null | awk '{print $4}' | head -1)
+      if [[ "${state}" == "up" ]]; then
+        printf '    %s%s%s    %sup%s    %s%s%s\n' "${MID}" "${iface}" "${RESET}" "${GREEN}" "${RESET}" "${SILVER}" "${addr:-}" "${RESET}"
+      else
+        printf '    %s%s%s    %sdown%s\n' "${MID}" "${iface}" "${RESET}" "${DIM}" "${RESET}"
+      fi
+    fi
+  done
+  printf '\n'
+
+  # --- DEADPLUG.DIGITAL ---
+  printf '  %s// DEADPLUG.DIGITAL%s\n' "${RED}" "${RESET}"
+  local home_state="$(probe_url https://deadplug.digital/healthz)"
+  local stream_resp
+  stream_resp=$(curl -fsS --connect-timeout 1 --max-time 2 \
+    "${DPOS_ONAIR_URL:-https://live.deadplug.digital/api/status}" 2>/dev/null)
+  local on_air="silent"
+  if [[ -n "${stream_resp}" ]]; then
+    if echo "${stream_resp}" | grep -qE '"online"[[:space:]]*:[[:space:]]*true'; then
+      on_air="ok"
+    fi
+  fi
+  printf '    %shomepage%s   '; dot "${home_state}"; printf '\n'
+  printf '    %son air%s     '; dot "${on_air}";    printf '  %s%s%s\n' "${DIM}" "$([[ "${on_air}" == ok ]] && echo broadcasting || echo silent)" "${RESET}"
+  printf '\n'
+
+  # --- TODAY ---
+  printf '  %s// TODAY%s\n' "${RED}" "${RESET}"
+  local rite=""
+  if command -v dpos-rite >/dev/null 2>&1; then
+    rite=$(dpos-rite 2>/dev/null)
+  fi
+  if [[ -n "${rite}" ]]; then
+    printf '    %srite%s     %s%s%s\n' "${MID}" "${RESET}" "${SILVER}" "${rite}" "${RESET}"
+  fi
+  printf '\n'
+
+  rule
+  printf '  %s▌%s %s press q to quit · r to redraw%s\n' "${RED_BR}" "${RESET}" "${DIM}" "${RESET}"
+  rule
+}
+
+# --- main loop ---
+tput civis 2>/dev/null     # hide cursor
+
+while :; do
+  render
+  read -t 2 -n 1 -s key 2>/dev/null || true
+  case "${key:-}" in
+    q|Q) break ;;
+    r|R) : ;;  # falls through, re-renders
+    '')  : ;;
+  esac
+done
+
+tput cnorm 2>/dev/null
+printf '\n'

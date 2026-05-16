@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# dpos-numbers — number-station broadcast.
+# Args: [--live] [count]
+#   default: print 3 groups of three 5-digit numbers
+#   --live:  print each number with a delay, like a real station
+# Echoes deadplug.digital/numbers.
+
+set -u
+
+RED=$'\033[38;5;160m'
+RED_BR=$'\033[38;5;196m'
+AMBER=$'\033[38;5;214m'
+DIM=$'\033[38;5;240m'
+SILVER=$'\033[38;5;253m'
+WHITE=$'\033[38;5;255m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
+live=0
+count=3
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --live|-l) live=1 ;;
+    [0-9]*)    count="$1" ;;
+    *)         printf '// usage: dpos numbers [--live] [count]\n' >&2; exit 2 ;;
+  esac
+  shift
+done
+
+# NATO phonetic
+phonetics=(ALFA BRAVO CHARLIE DELTA ECHO FOXTROT GOLF HOTEL INDIA JULIET
+           KILO LIMA MIKE NOVEMBER OSCAR PAPA QUEBEC ROMEO SIERRA TANGO
+           UNIFORM VICTOR WHISKEY XRAY YANKEE ZULU)
+
+# Pick a callsign (3 letters)
+callsign=""
+for _ in 1 2 3; do
+  callsign+="${phonetics[$RANDOM % 26]} "
+done
+callsign="${callsign% }"
+
+printf '\n'
+printf '%s%s  // the broadcast begins%s\n' "${RED}" "${BOLD}" "${RESET}"
+printf '%s     callsign: %s%s%s%s\n\n' "${DIM}" "${AMBER}" "${BOLD}" "${callsign}" "${RESET}"
+
+# Emit groups
+for ((g=1; g<=count; g++)); do
+  printf '%s     GROUP %d%s   ' "${RED}" "${g}" "${RESET}"
+  for ((i=1; i<=3; i++)); do
+    n=$(( RANDOM * RANDOM % 100000 ))
+    printf '%s%05d%s' "${WHITE}" "${n}" "${RESET}"
+    if (( i < 3 )); then printf ' '; fi
+    if (( live )); then
+      # quick beep cadence — a number every 600ms
+      sleep 0.6
+    fi
+  done
+  printf '\n'
+  if (( live && g < count )); then
+    sleep 1.4
+  fi
+done
+
+printf '\n'
+printf '%s     interval: %s every 90 seconds %s· %srepeat schedule: ad infinitum%s\n' "${DIM}" "${SILVER}" "${DIM}" "${SILVER}" "${RESET}"
+printf '\n'
+printf '%s%s  // the broadcast is complete%s\n\n' "${RED}" "${BOLD}" "${RESET}"

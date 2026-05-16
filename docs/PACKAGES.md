@@ -42,6 +42,19 @@ main, so the kit works on either codename.
 | imagemagick                      | arm64    | for asset rasterization fallbacks |
 | librsvg2-bin                     | arm64    | `rsvg-convert`, used by 80-plymouth.sh |
 
+## Stage 15 — CLI suite (`scripts/15-cli-tools.sh`)
+
+| Package    | Arch  | Notes |
+|------------|-------|-------|
+| fzf        | arm64 | fuzzy finder — engine for the `dpos` launcher and zsh Ctrl-R/T/Alt-C |
+| bat        | arm64 | Debian binary is `batcat`; used by fzf preview and `cat` alias |
+| eza        | arm64 | Modern `ls` replacement; `ls`/`l`/`la`/`ll`/`lt` aliases |
+| fd-find    | arm64 | Fast `find`; binary is `fdfind`; used by FZF_DEFAULT_COMMAND |
+| ripgrep    | arm64 | Fast `grep`; binary is `rg` |
+| ncdu       | arm64 | Interactive disk usage |
+| tldr       | all   | Quick man-page summaries |
+| lazygit    | arm64 | Git TUI — installed if available, otherwise skipped |
+
 ## Stage 20 — i3 stack (`scripts/20-i3.sh`)
 
 | Package                          | Arch     | Notes |

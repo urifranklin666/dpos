@@ -59,6 +59,7 @@ To run only part of it:
 |---------------------|-----------------------------------------------------------|
 | `00-preflight.sh`   | Verify Pi 4, 64-bit, Trixie/Bookworm, sudo, network, disk |
 | `10-apt-base.sh`    | apt update/upgrade, install X11 + base tools              |
+| `15-cli-tools.sh`   | Hacker CLI suite: fzf, bat, eza, fd, ripgrep, ncdu, tldr  |
 | `20-i3.sh`          | Install i3, polybar, picom, rofi, alacritty, dunst, feh   |
 | `30-theme.sh`       | GTK 3/4 dark theme override with brand tokens             |
 | `40-fonts.sh`       | Mono (Fira Code, Cascadia), serif (DejaVu)                |
@@ -68,6 +69,14 @@ To run only part of it:
 | `80-plymouth.sh`    | Boot splash theme + initramfs update                      |
 | `90-motd.sh`        | Login banner replacement                                  |
 | `99-tighten.sh`     | gpu_mem, zram, disable cruft, KMS check, governor         |
+
+## The `dpos` command
+
+A central operator-console command lands at `~/.local/bin/dpos`. Bare
+invocation pops a brand-themed fzf launcher; `dpos <sub>` dispatches
+directly. See `dpos help` for the full subcommand list (status, ssh,
+services, sigil, confess, numbers, boot, rite, onair, lock, colors,
+banner, home, ops).
 
 Each script is idempotent. Re-running won't double-install or wreck configs
 that already exist (those are backed up to `~/.dpos-backup/`).

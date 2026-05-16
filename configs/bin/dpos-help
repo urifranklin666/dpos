@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# dpos-help — manual page in the operator-cult register.
+set -u
+
+RED=$'\033[38;5;160m'
+RED_BR=$'\033[38;5;196m'
+RED_DIM=$'\033[38;5;88m'
+DIM=$'\033[38;5;240m'
+MID=$'\033[38;5;247m'
+SILVER=$'\033[38;5;253m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
+cat <<EOF
+
+${RED}╭─────────────────────────────────────────────────────────────────────╮${RESET}
+${RED}│${RESET}                                                                     ${RED}│${RESET}
+${RED}│${RESET}  ${BOLD}${RED_BR}dpos${RESET}${MID} · operator-cult command hub${RESET}                              ${RED}│${RESET}
+${RED}│${RESET}  ${DIM}version 0.1.0${RESET}                                                      ${RED}│${RESET}
+${RED}│${RESET}                                                                     ${RED}│${RESET}
+${RED}╰─────────────────────────────────────────────────────────────────────╯${RESET}
+
+  ${RED}// SYNOPSIS${RESET}
+    ${SILVER}dpos${RESET}                    ${DIM}open the launcher (fzf)${RESET}
+    ${SILVER}dpos <subcommand>${RESET}       ${DIM}run directly${RESET}
+    ${SILVER}dpos help${RESET}               ${DIM}this screen${RESET}
+
+  ${RED}// CORE${RESET}
+    ${SILVER}status${RESET}                  ${DIM}live dashboard for this box${RESET}
+    ${SILVER}ssh${RESET}                     ${DIM}fzf launcher over ~/.ssh/config${RESET}
+    ${SILVER}services${RESET}                ${DIM}fzf launcher for deadplug.digital sites${RESET}
+    ${SILVER}lock${RESET}                    ${DIM}lock the screen${RESET}
+    ${SILVER}onair${RESET}                   ${DIM}check broadcast status${RESET}
+
+  ${RED}// RITES${RESET}
+    ${SILVER}rite${RESET}                    ${DIM}today's rite${RESET}
+    ${SILVER}confess [sin]${RESET}           ${DIM}the confessional booth${RESET}
+    ${SILVER}sigil <text>${RESET}            ${DIM}generate a procedural ASCII sigil${RESET}
+    ${SILVER}numbers [count]${RESET}         ${DIM}number-station broadcast${RESET}
+    ${SILVER}boot${RESET}                    ${DIM}theatrical boot sequence (for show)${RESET}
+
+  ${RED}// SHELL${RESET}
+    ${SILVER}banner${RESET}                  ${DIM}re-show the shell-open banner${RESET}
+    ${SILVER}colors${RESET}                  ${DIM}show the dpos palette${RESET}
+    ${SILVER}home${RESET}                    ${DIM}open deadplug.digital homepage${RESET}
+    ${SILVER}ops${RESET}                     ${DIM}open /ops console${RESET}
+
+  ${RED}// FZF SHORTCUTS${RESET}  ${DIM}(from your zsh)${RESET}
+    ${SILVER}Ctrl+R${RESET}                  ${DIM}fuzzy history${RESET}
+    ${SILVER}Ctrl+T${RESET}                  ${DIM}fuzzy file picker${RESET}
+    ${SILVER}Alt+C${RESET}                   ${DIM}fuzzy cd${RESET}
+
+  ${RED}// ENVIRONMENT${RESET}
+    ${SILVER}DPOS_NO_BANNER=1${RESET}        ${DIM}skip the shell-open banner${RESET}
+    ${SILVER}DPOS_ONAIR_URL=<url>${RESET}    ${DIM}override owncast endpoint${RESET}
+    ${SILVER}DPOS_RITES=<path>${RESET}       ${DIM}override rites corpus path${RESET}
+    ${SILVER}DPOS_BROWSER=<bin>${RESET}      ${DIM}override xdg-open for services/home/ops${RESET}
+
+  ${RED}// FILES${RESET}
+    ${SILVER}~/.local/bin/dpos*${RESET}      ${DIM}all subcommand binaries${RESET}
+    ${SILVER}~/.local/share/dpos/${RESET}    ${DIM}corpus, logo, marker files${RESET}
+    ${SILVER}~/.local/share/dpos/rites.txt${RESET}  ${DIM}the rite corpus${RESET}
+    ${SILVER}~/.cache/dpos/lock.png${RESET}  ${DIM}rendered lockscreen${RESET}
+
+  ${RED}// SEE ALSO${RESET}
+    ${DIM}deadplug.digital · git.deadplug.digital/urifranklin666/dpos${RESET}
+
+EOF

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# dpos-colors — show the dpos palette as ANSI swatches.
+set -u
+
+RED=$'\033[38;5;160m'
+RED_BR=$'\033[38;5;196m'
+DIM=$'\033[38;5;240m'
+SILVER=$'\033[38;5;253m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
+print_swatch() {
+  # print_swatch <ansi-code> <name> <hex>
+  local ansi="$1" name="$2" hex="$3"
+  printf '  \033[48;5;%dm     \033[0m  \033[38;5;%dm█████\033[0m  %s%-13s%s %s%s%s  %sANSI %d%s\n' \
+    "${ansi}" "${ansi}" \
+    "${SILVER}" "${name}" "${RESET}" \
+    "${DIM}" "${hex}" "${RESET}" \
+    "${DIM}" "${ansi}" "${RESET}"
+}
+
+printf '\n'
+printf '  %s%s// dpos palette%s\n\n' "${RED}" "${BOLD}" "${RESET}"
+
+print_swatch 160 "red"          "#cc0000"
+print_swatch 196 "red-bright"   "#ff2222"
+print_swatch  88 "red-dim"      "#880000"
+print_swatch  52 "red-deep"     "#3a0000"
+printf '\n'
+print_swatch 232 "bg"           "#060606"
+print_swatch 233 "surface"      "#0a0a0a"
+print_swatch 234 "surface-2"    "#101010"
+printf '\n'
+print_swatch 255 "text-bright"  "#ffffff"
+print_swatch 253 "text"         "#dedede"
+print_swatch 247 "text-mid"     "#9a9a9a"
+print_swatch 240 "text-dim"     "#606060"
+printf '\n'
+print_swatch 214 "amber"        "#ffb000"
+print_swatch  34 "good"         "#22cc44"
+
+printf '\n  %s// tokens mirror /homepage CSS variables%s\n\n' "${DIM}" "${RESET}"

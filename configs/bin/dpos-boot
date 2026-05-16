@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# dpos-boot — theatrical boot sequence. For looking busy in a meeting.
+# Use --fast to skip the delays.
+
+set -u
+
+fast=0
+[[ "${1:-}" == "--fast" || "${1:-}" == "-f" ]] && fast=1
+
+RED=$'\033[38;5;160m'
+RED_BR=$'\033[38;5;196m'
+RED_DIM=$'\033[38;5;88m'
+GREEN=$'\033[38;5;34m'
+AMBER=$'\033[38;5;214m'
+DIM=$'\033[38;5;240m'
+MID=$'\033[38;5;247m'
+SILVER=$'\033[38;5;253m'
+WHITE=$'\033[38;5;255m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
+pause() { (( fast )) && return; sleep "${1:-0.08}"; }
+
+step() {
+  # step "<message>" "<status>"
+  local msg="$1" status="${2:-OK}"
+  local pad
+  pad=$(printf '%*s' $(( 50 - ${#msg} )) '' | tr ' ' '.')
+  printf '  %s>%s %s%s%s %s%s%s ' "${RED}" "${RESET}" "${MID}" "${msg}" "${RESET}" "${DIM}" "${pad}" "${RESET}"
+  pause 0.12
+  case "${status}" in
+    OK)         printf '%s%s%s\n'  "${GREEN}"  "${status}" "${RESET}" ;;
+    WARN|WARN*) printf '%s%s%s\n'  "${AMBER}"  "${status}" "${RESET}" ;;
+    FAIL)       printf '%s%s%s\n'  "${RED_BR}" "${status}" "${RESET}" ;;
+    *)          printf '%s%s%s\n'  "${SILVER}" "${status}" "${RESET}" ;;
+  esac
+  pause 0.04
+}
+
+# Decryption effect — chars resolve into the target string
+decrypt_line() {
+  local target="$1"
+  local len=${#target}
+  local pool='!@#$%^&*()_+={}[]|:;<>?/.,~`▒▓░█▄▀▌▐'
+  local pool_len=${#pool}
+  if (( fast )); then
+    printf '  %s>%s %s%s%s\n' "${RED}" "${RESET}" "${WHITE}" "${target}" "${RESET}"
+    return
+  fi
+  local i frame
+  for frame in 1 2 3 4 5; do
+    printf '  %s>%s %s' "${RED}" "${RESET}" "${RED_DIM}"
+    for ((i=0; i<len; i++)); do
+      printf '%s' "${pool:$(( RANDOM % pool_len )):1}"
+    done
+    printf '%s\r' "${RESET}"
+    sleep 0.06
+  done
+  printf '  %s>%s %s%s%s\n' "${RED}" "${RESET}" "${WHITE}" "${target}" "${RESET}"
+}
+
+printf '\n'
+printf '  %s%s// initializing deadplug operator console%s\n\n' "${RED}" "${BOLD}" "${RESET}"
+pause 0.2
+
+step "mounting /dev/sigil"                              "OK"
+step "attaching watchman"                               "OK"
+step "negotiating with the silent watcher"              "OK"
+step "warming sigil.cache"                              "OK"
+step "checking moth proximity"                          "12 fluttering"
+step "enumerating embers"                               "8 stable"
+step "establishing tube relay"                          "OK"
+step "engaging crowdsec daemon"                         "OK"
+step "auditing the cargo cult"                          "holds"
+step "ritual.next"                                      "03:17:00 UTC"
+step "consensus reached"                                "OK"
+
+printf '\n'
+printf '  %s%s// the rite for today%s\n' "${RED}" "${BOLD}" "${RESET}"
+pause 0.3
+
+# Read today's rite and "decrypt" it
+rite=""
+if command -v dpos-rite >/dev/null 2>&1; then
+  rite=$(dpos-rite 2>/dev/null)
+fi
+[[ -z "${rite}" ]] && rite="today: read one man page in full. no skimming."
+decrypt_line "${rite}"
+
+printf '\n'
+printf '  %s%s// operator on duty.%s\n\n' "${RED_BR}" "${BOLD}" "${RESET}"

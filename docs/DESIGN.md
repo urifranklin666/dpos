@@ -131,6 +131,8 @@ imply a viewport without drawing a box.
 | Plymouth splash | Pulsing sigil + chromatic-split glitch on the wordmark |
 | Shell banner   | dpos-banner on every interactive shell — figlet wordmark + rite |
 | Zsh prompt     | `╭─ user@host ~/path  git:branch !`  /  `╰─▌` with RPROMPT time |
+| `dpos` launcher | fzf menu with `// invoke ▌` prompt, brand colors, ▌ pointer |
+| `dpos status`  | live TUI dashboard — host facts, bars, remote dots, today's rite |
 | Vim            | Custom dpos.vim colorscheme — comments italic dim, keywords bold red |
 | tmux           | `// dpos · session` left, `host · HH:MM · YYYY-MM-DD` right |
 | btop           | dpos.theme — all gradients red-only, no green→amber→red |
@@ -138,6 +140,34 @@ imply a viewport without drawing a box.
 | First boot     | One-time greeter terminal with fastfetch + single dry line |
 
 (Conky was removed — it doesn't belong on a tiling WM.)
+
+## The `dpos` command hub
+
+A single command that opens a fzf launcher to every operator-tool we
+ship. Run bare for the menu; `dpos <subcommand>` dispatches directly;
+`dpos help` prints the full manual.
+
+| Subcommand | What it does |
+|------------|--------------|
+| `status`   | Live TUI dashboard (host + remote heartbeat) |
+| `ssh`      | fzf launcher over `~/.ssh/config` |
+| `services` | fzf launcher over the deadplug.digital app catalogue |
+| `sigil <text>` | Procedural ASCII sigil — echoes `/oracle` |
+| `confess [sin]` | The confessional — echoes `/confessional` |
+| `numbers [count]` | Number-station broadcast — echoes `/numbers` |
+| `boot`     | Theatrical boot sequence (decryption animation) |
+| `rite`     | Today's rite from the corpus |
+| `onair`    | Check broadcast state via owncast |
+| `lock`     | Lock screen |
+| `colors`   | Show the dpos palette |
+| `banner`   | Re-show the shell-open banner |
+| `home`     | Open `deadplug.digital` |
+| `ops`      | Open `/ops` console |
+| `help`     | Manual page |
+
+The launcher menu uses the brand fzf colors. Adding a new subcommand
+means dropping a `dpos-<name>` script into `~/.local/bin/` and listing
+it in `dpos`'s registry.
 
 ## Anti-patterns
 

@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# dpos-ssh — fzf launcher over ~/.ssh/config Host entries. ENTER ssh's in.
+
+set -u
+
+if ! command -v fzf >/dev/null 2>&1; then
+  printf '// dpos-ssh requires fzf. install with: sudo apt install fzf\n' >&2
+  exit 127
+fi
+
+config="${HOME}/.ssh/config"
+if [[ ! -r "${config}" ]]; then
+  printf '// no ~/.ssh/config — nothing to launch.\n' >&2
+  printf '// add hosts with:\n' >&2
+  printf '//   Host shortname\n' >&2
+  printf '//     HostName 1.2.3.4\n' >&2
+  printf '//     User you\n' >&2
+  exit 1
+fi
+
+# Extract Host entries (ignoring wildcards), pair with HostName/User if present
+hosts=$(awk '
+  BEGIN { IGNORECASE=1; current="" }
+  /^[[:space:]]*Host[[:space:]]/ {
+    if (current && !haswild) {
+      printf "%s\t%s\t%s\n", current, hostname, user
+    }
+    current=""; hostname=""; user=""; haswild=0
+    for (i=2; i<=NF; i++) {
+      if ($i ~ /[*?!]/) { haswild=1; next }
+      current=(current ? current " " : "") $i
+    }
+    next
+  }
+  /^[[:space:]]*HostName[[:space:]]/ { hostname=$2; next }
+  /^[[:space:]]*User[[:space:]]/      { user=$2;     next }
+  END {
+    if (current && !haswild) {
+      printf "%s\t%s\t%s\n", current, hostname, user
+    }
+  }
+' "${config}")
+
+if [[ -z "${hosts}" ]]; then
+  printf '// no non-wildcard Host entries in ~/.ssh/config.\n' >&2
+  exit 1
+fi
+
+selected=$(printf '%s' "${hosts}" | \
+  fzf --ansi --no-multi --reverse --height=70% \
+      --delimiter=$'\t' \
+      --with-nth=1,2,3 \
+      --prompt='// ssh ▌ ' \
+      --pointer='▌' \
+      --header=$'// dpos · ssh launcher · ENTER connects · esc to dismiss' \
+      --header-first \
+      --border=rounded \
+      --color=fg:#dedede,bg:#060606,hl:#ff2222 \
+      --color=fg+:#ffffff,bg+:#3a0000,hl+:#ff2222 \
+      --color=info:#cc0000,prompt:#ff2222,pointer:#ff2222 \
+      --color=marker:#ff2222,spinner:#cc0000,header:#cc0000 \
+      --color=border:#cc0000 \
+  | cut -f1)
+
+[[ -z "${selected}" ]] && exit 0
+# Take only the first space-separated host name (in case of aliases)
+host="${selected%% *}"
+exec ssh "${host}"

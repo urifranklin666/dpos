@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# dpos-services — fzf launcher for deadplug.digital sites and custom apps.
+# Pick one, ENTER opens in your browser.
+
+set -u
+
+BROWSER="${DPOS_BROWSER:-$(command -v xdg-open || echo "")}"
+
+if ! command -v fzf >/dev/null 2>&1; then
+  printf '// dpos-services requires fzf. install with: sudo apt install fzf\n' >&2
+  exit 127
+fi
+
+# Format: <URL>\t<label>\t<category>
+sites=$(cat <<'EOF'
+https://deadplug.digital	homepage	core
+https://deadplug.digital/showcase	showcase · 20-stop tour	core
+https://deadplug.digital/work	work · case studies	core
+https://deadplug.digital/admin	admin	ops
+https://deadplug.digital/ops	ops console	ops
+https://status.deadplug.digital	status · uptime kuma	ops
+https://portainer.deadplug.digital	portainer	ops
+https://grafana.deadplug.digital	grafana	ops
+https://deadplug.digital/aquarium	aquarium · threat fish	custom
+https://deadplug.digital/beacon	beacon · ban counter	custom
+https://deadplug.digital/codex	codex · the lore	custom
+https://deadplug.digital/cemetery	cemetery · eulogize	custom
+https://deadplug.digital/compiler	compiler · ritual DSL	custom
+https://deadplug.digital/confessional	confessional · absolve	custom
+https://deadplug.digital/eightball	8-ball	custom
+https://deadplug.digital/fortune	fortune	custom
+https://deadplug.digital/honeypot	honeypot · bait	custom
+https://deadplug.digital/liturgy	liturgy · patch readings	custom
+https://deadplug.digital/moth	moth · cursor flame	custom
+https://deadplug.digital/numbers	numbers · OTP station	custom
+https://deadplug.digital/oracle	oracle · sigils	custom
+https://deadplug.digital/rites	rites · cargo cult	custom
+https://deadplug.digital/tarot	tarot · sysadmin deck	custom
+https://deadplug.digital/tubes	tubes · pneumatic relay	custom
+https://deadplug.digital/bbs	bbs · 90s revival	custom
+https://threats.deadplug.digital	threats · live ticker	custom
+https://spotify.deadplug.digital	spotify widget	custom
+https://signal.deadplug.digital	vdo signaling	custom
+https://lord.deadplug.digital	LORD · browser remake	app
+https://deadp0et.deadplug.digital	deadp0et · E2EE messenger	app
+https://datcord.deadplug.digital	datcord · revolt cluster	app
+https://live.deadplug.digital	owncast	app
+https://vault.deadplug.digital	vaultwarden	app
+https://nextcloud.deadplug.digital	nextcloud	app
+https://git.deadplug.digital	gitea	app
+https://photos.deadplug.digital	immich	app
+https://osint.deadplug.digital	osint dashboard	tools
+https://search.deadplug.digital	searxng	tools
+https://spiderfoot.deadplug.digital	spiderfoot	tools
+https://cyberchef.deadplug.digital	cyberchef	tools
+EOF
+)
+
+selected=$(printf '%s' "${sites}" | \
+  fzf --ansi --no-multi --reverse --height=80% \
+      --delimiter=$'\t' \
+      --with-nth=2,3 \
+      --prompt='// invoke ▌ ' \
+      --pointer='▌' \
+      --header=$'// dpos · services · ENTER opens in browser · esc to dismiss' \
+      --header-first \
+      --border=rounded \
+      --preview='echo "$(echo {} | cut -f1)"' \
+      --preview-window='bottom:3:wrap' \
+      --color=fg:#dedede,bg:#060606,hl:#ff2222 \
+      --color=fg+:#ffffff,bg+:#3a0000,hl+:#ff2222 \
+      --color=info:#cc0000,prompt:#ff2222,pointer:#ff2222 \
+      --color=marker:#ff2222,spinner:#cc0000,header:#cc0000 \
+      --color=border:#cc0000,preview-fg:#9a9a9a \
+  | cut -f1)
+
+[[ -z "${selected}" ]] && exit 0
+
+if [[ -z "${BROWSER}" ]]; then
+  printf '// no browser found. set $DPOS_BROWSER or install xdg-utils.\n' >&2
+  printf '// would have opened: %s\n' "${selected}" >&2
+  exit 1
+fi
+
+exec "${BROWSER}" "${selected}" >/dev/null 2>&1 &
+disown 2>/dev/null || true

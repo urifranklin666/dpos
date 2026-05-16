@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# dpos-ops — open the /ops console.
+set -u
+BROWSER="${DPOS_BROWSER:-$(command -v xdg-open || echo "")}"
+URL="https://deadplug.digital/ops"
+if [[ -z "${BROWSER}" ]]; then
+  printf '// no browser; URL: %s\n' "${URL}" >&2
+  exit 1
+fi
+exec "${BROWSER}" "${URL}" >/dev/null 2>&1 &
+disown 2>/dev/null || true

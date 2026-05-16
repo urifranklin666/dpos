@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# dpos-confess — sysadmin confessional. Echoes deadplug.digital/confessional.
+
+set -u
+
+RED=$'\033[38;5;160m'
+RED_BR=$'\033[38;5;196m'
+DIM=$'\033[38;5;240m'
+MID=$'\033[38;5;247m'
+SILVER=$'\033[38;5;253m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
+sin="$*"
+
+# If no sin given, pick from the canon
+if [[ -z "${sin}" ]]; then
+  default_sins=(
+    "I deployed on a Friday."
+    "I rm'd a thing without checking the path."
+    "I logged in as root just this once."
+    "I tested in production. it was faster."
+    "I disabled the alert because it was annoying."
+    "I held apt for too long."
+    "I ssh'd into a server with no purpose and did nothing."
+    "I copy-pasted a stackoverflow command without reading it."
+    "I left a TODO and shipped."
+    "I named a variable 'temp' and committed."
+    "I closed an issue with 'wontfix' and the reason was 'tired'."
+    "I edited the live nginx config."
+    "I force-pushed."
+    "I muted the channel."
+  )
+  sin="${default_sins[$RANDOM % ${#default_sins[@]}]}"
+fi
+
+# Penances — rotated by sin hash for determinism
+penances=(
+  "read three error messages without copy-pasting."
+  "write one test for code that's already in production."
+  "rename one variable for clarity. just one."
+  "send one tube. say nothing important."
+  "ssh into a server you trust. say hello to it."
+  "open the codex. read for two minutes."
+  "delete one alias you no longer use."
+  "comment one regex you wrote."
+  "let the kernel finish whatever it's doing."
+  "let one process live longer than you wanted."
+)
+
+# Weights
+weights=(light medium heavy "extremely heavy")
+
+# Seed the picks
+sin_hash=$(printf '%s' "${sin}" | sha256sum | awk '{print $1}')
+p_idx=$(( 0x${sin_hash:0:2} % ${#penances[@]} ))
+w_idx=$(( 0x${sin_hash:2:2} % ${#weights[@]} ))
+penance="${penances[$p_idx]}"
+weight="${weights[$w_idx]}"
+
+cat <<EOF
+
+${RED}${BOLD}  // the confessional${RESET}
+${DIM}  the booth keeps no record.${RESET}
+
+    ${RED}sin${RESET}        ${SILVER}${sin}${RESET}
+    ${RED}weight${RESET}     ${SILVER}${weight}${RESET}
+    ${RED}penance${RESET}    ${SILVER}${penance}${RESET}
+
+${RED_BR}${BOLD}  // absolution granted.${RESET}
+${DIM}  go in peace. break things again.${RESET}
+
+EOF

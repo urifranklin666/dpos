@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# dpos — operator-cult command hub.
+#
+# Bare invocation drops you into a fzf launcher menu of every subcommand.
+# `dpos <subcommand>` dispatches directly. `dpos help` prints the manual.
+
+set -u
+
+readonly DPOS_VERSION="0.1.0"
+
+# ANSI palette
+RED=$'\033[38;5;160m'
+RED_BR=$'\033[38;5;196m'
+RED_DIM=$'\033[38;5;88m'
+DIM=$'\033[38;5;240m'
+MID=$'\033[38;5;247m'
+SILVER=$'\033[38;5;253m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
+# Subcommand registry: order matters (used as menu order)
+# Each entry: <name>\t<description>
+declare -a CMDS=(
+  $'status\tlive dashboard for this box'
+  $'ssh\tfzf launcher over ~/.ssh/config'
+  $'services\tfzf launcher for deadplug.digital sites'
+  $'sigil\ttext → procedural ASCII sigil'
+  $'confess\tthe confessional'
+  $'numbers\tnumber-station broadcast'
+  $'boot\ttheatrical boot sequence (for show)'
+  $'rite\ttoday\'s rite from the corpus'
+  $'onair\tcheck broadcast status'
+  $'lock\tlock the screen'
+  $'colors\tshow the dpos palette'
+  $'banner\tre-show the shell-open banner'
+  $'home\topen deadplug.digital homepage'
+  $'ops\topen /ops console'
+  $'help\tfull help'
+)
+
+VALID_CMDS=(status ssh services sigil confess numbers boot rite onair lock colors banner home ops help)
+
+print_legend() {
+  printf '\n%s%s// dpos%s%s · operator console%s\n\n' \
+    "${RED}" "${BOLD}" "${RESET}" "${DIM}" "${RESET}"
+  for entry in "${CMDS[@]}"; do
+    local name="${entry%%$'\t'*}"
+    local desc="${entry#*$'\t'}"
+    printf '  %s%-10s%s  %s%s%s\n' "${RED}" "${name}" "${MID}" "${SILVER}" "${desc}" "${RESET}"
+  done
+  printf '\n  %susage:%s dpos %s<subcommand>%s   |   bare %sdpos%s opens the launcher\n\n' \
+    "${DIM}" "${RESET}" "${RED}" "${RESET}" "${RED}" "${RESET}"
+}
+
+dispatch() {
+  local cmd="$1"; shift
+  local resolved
+  case "${cmd}" in
+    -h|--help) cmd="help" ;;
+  esac
+
+  if [[ ! " ${VALID_CMDS[*]} " == *" ${cmd} "* ]]; then
+    printf '%s// unknown subcommand: %s%s%s\n' "${RED_BR}" "${BOLD}" "${cmd}" "${RESET}" >&2
+    printf '%stry `dpos` for the launcher, or `dpos help`.%s\n' "${DIM}" "${RESET}" >&2
+    exit 2
+  fi
+
+  resolved="${HOME}/.local/bin/dpos-${cmd}"
+  if [[ ! -x "${resolved}" ]]; then
+    if command -v "dpos-${cmd}" >/dev/null 2>&1; then
+      resolved="dpos-${cmd}"
+    else
+      printf '%s// not installed: dpos-%s%s\n' "${RED_BR}" "${cmd}" "${RESET}" >&2
+      exit 127
+    fi
+  fi
+  exec "${resolved}" "$@"
+}
+
+# Direct dispatch when args provided
+if [[ $# -gt 0 ]]; then
+  dispatch "$@"
+fi
+
+# Bare invocation — fzf launcher menu
+if ! command -v fzf >/dev/null 2>&1; then
+  print_legend
+  exit 0
+fi
+
+# Build the fzf input
+menu_input=""
+for entry in "${CMDS[@]}"; do
+  menu_input+="${entry}"$'\n'
+done
+
+selected=$(printf '%s' "${menu_input}" | \
+  fzf --ansi --no-multi --reverse --height=80% \
+      --delimiter=$'\t' \
+      --with-nth=1,2 \
+      --prompt='// invoke ▌ ' \
+      --pointer='▌' \
+      --marker='+' \
+      --header=$'// dpos · operator console · esc to dismiss' \
+      --header-first \
+      --border=rounded \
+      --color=fg:#dedede,bg:#060606,hl:#ff2222 \
+      --color=fg+:#ffffff,bg+:#3a0000,hl+:#ff2222 \
+      --color=info:#cc0000,prompt:#ff2222,pointer:#ff2222 \
+      --color=marker:#ff2222,spinner:#cc0000,header:#cc0000 \
+      --color=border:#cc0000 \
+  | cut -f1) || true
+
+[[ -z "${selected}" ]] && exit 0
+dispatch "${selected}"

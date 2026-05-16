@@ -2,11 +2,20 @@
 # don't add anything cute. brevity over personality.
 
 # ---- list & navigate ------------------------------------------------------
-alias ls='ls --color=auto'
-alias l='ls -lh'
-alias la='ls -lha'
-alias ll='ls -lhA'
-alias lt='ls -lhtr'
+# eza (modern ls) when available — falls back to coreutils ls
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --color=always --icons=never --group-directories-first'
+  alias l='eza  -lh   --icons=never --group-directories-first'
+  alias la='eza -lah  --icons=never --group-directories-first'
+  alias ll='eza -lAh  --icons=never --group-directories-first'
+  alias lt='eza -lh --tree --level=2 --icons=never --group-directories-first'
+else
+  alias ls='ls --color=auto'
+  alias l='ls -lh'
+  alias la='ls -lha'
+  alias ll='ls -lhA'
+  alias lt='ls -lhtr'
+fi
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
@@ -15,6 +24,11 @@ alias ....='cd ../../..'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
+
+# fd (Debian: fdfind), ripgrep, bat (Debian: batcat)
+command -v fdfind  >/dev/null 2>&1 && alias fd='fdfind'
+command -v batcat  >/dev/null 2>&1 && alias bat='batcat'
+command -v batcat  >/dev/null 2>&1 && alias cat='batcat --paging=never --style=plain'
 
 # ---- system ---------------------------------------------------------------
 alias df='df -h'
@@ -47,6 +61,13 @@ alias banner='dpos-banner'
 # btop with the dpos theme
 alias top='btop'
 alias htop='btop'
+
+# ---- dpos shortcuts -------------------------------------------------------
+alias d='dpos'                # bare invocation opens the launcher
+alias dst='dpos status'        # live dashboard
+alias dsv='dpos services'      # fzf launcher for deadplug.digital
+alias dsh='dpos ssh'           # fzf launcher for SSH config
+alias dsg='dpos sigil'         # generate a sigil from text
 
 # ---- docker (in case you're running rootless or similar) -----------------
 alias dc='docker compose'

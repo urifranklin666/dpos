@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# dpos-sigil — generate a procedural ASCII sigil from a petition.
+# Deterministic: same input → same sigil. Echoes deadplug.digital/oracle.
+
+set -u
+
+input="${*:-}"
+if [[ -z "${input}" ]]; then
+  printf '// usage: dpos sigil <text>\n' >&2
+  printf '// example: dpos sigil "kill the build"\n' >&2
+  exit 2
+fi
+
+RED=$'\033[38;5;160m'
+RED_BR=$'\033[38;5;196m'
+RED_DIM=$'\033[38;5;88m'
+DIM=$'\033[38;5;240m'
+MID=$'\033[38;5;247m'
+SILVER=$'\033[38;5;253m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
+# Hash the input — gives us 64 hex chars to seed everything off
+hash=$(printf '%s' "${input}" | sha256sum | awk '{print $1}')
+
+# Helper: read 2 hex chars at position N (0-indexed), return decimal 0-255
+byte() {
+  local pos=$(( $1 * 2 ))
+  printf '%d' "0x${hash:${pos}:2}"
+}
+
+# Glyph pools
+glyphs_edge=('━' '═' '─' '╌')
+glyphs_corner=('╋' '╬' '┼' '◇' '◆')
+glyphs_node=('◯' '◉' '●' '◎' '◐' '◑' '◒' '◓' '✦' '★' '◈' '◇' '◆' '▲' '▼' '◀' '▶' '╳' '✕')
+glyphs_orbit=('·' '∘' '°' '⋅' '•' '◌')
+
+n_edge=${#glyphs_edge[@]}
+n_corner=${#glyphs_corner[@]}
+n_node=${#glyphs_node[@]}
+n_orbit=${#glyphs_orbit[@]}
+
+# Pick glyphs from the hash
+e1=${glyphs_edge[$(( $(byte 0) % n_edge ))]}
+e2=${glyphs_edge[$(( $(byte 1) % n_edge ))]}
+c=${glyphs_corner[$(( $(byte 2) % n_corner ))]}
+n_top=${glyphs_node[$(( $(byte 3) % n_node ))]}
+n_mid=${glyphs_node[$(( $(byte 4) % n_node ))]}
+n_bot=${glyphs_node[$(( $(byte 5) % n_node ))]}
+n_l=${glyphs_node[$(( $(byte 6) % n_node ))]}
+n_r=${glyphs_node[$(( $(byte 7) % n_node ))]}
+o1=${glyphs_orbit[$(( $(byte 8) % n_orbit ))]}
+o2=${glyphs_orbit[$(( $(byte 9) % n_orbit ))]}
+o3=${glyphs_orbit[$(( $(byte 10) % n_orbit ))]}
+o4=${glyphs_orbit[$(( $(byte 11) % n_orbit ))]}
+
+# Generate the "true name" — pseudo-runes pulled from the hash
+syllables=(za to be ka ru no la mi xen vor thri sek mol grim cha rek nyx oth ix yth)
+n_syl=${#syllables[@]}
+name=""
+for i in 0 12 14 16; do
+  name+="${syllables[$(( $(byte $i) % n_syl ))]}"
+done
+# Capitalize first letter, uppercase whole thing for ritual feel
+name_upper=$(printf '%s' "${name}" | tr '[:lower:]' '[:upper:]')
+
+# "Wards set" — bit-derived count
+wards=$(( $(byte 13) % 7 + 1 ))
+
+# Print the sigil
+cat <<EOF
+
+${RED}${BOLD}  // the sigil is compiled${RESET}
+
+         ${RED}${o1}     ${RED_BR}${n_top}${RED}     ${o2}${RESET}
+
+         ${RED}${e1}${e1}${c}${e1}${e1}${RESET}
+
+   ${RED}${n_l}${RESET}    ${RED_BR}${n_mid}${RESET}    ${RED}${n_r}${RESET}
+
+         ${RED}${e2}${e2}${c}${e2}${e2}${RESET}
+
+         ${RED}${o3}     ${RED_BR}${n_bot}${RED}     ${o4}${RESET}
+
+
+${RED}  petition${RESET}    ${SILVER}${input}${RESET}
+${RED}  true name${RESET}   ${BOLD}${RED_BR}${name_upper}${RESET}
+${RED}  hash${RESET}        ${DIM}${hash:0:32}…${RESET}
+${RED}  wards${RESET}       ${SILVER}${wards} set${RESET}
+
+${DIM}  // permalinks reproduce the same sigil.${RESET}
+
+EOF
