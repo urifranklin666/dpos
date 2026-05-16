@@ -74,7 +74,7 @@ render logo            256       256
 render wordmark        720       70
 render wordmark-glitch-r 720     70
 render wordmark-glitch-c 720     70
-render eyebrow         880       28
+render eyebrow         920       28
 render bar-track       360       2
 render bar-fill        1         2
 render ember           24        24

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- the homepage "// EYEBROW" label, dim mono. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 28" width="880" height="28">
-  <text x="440" y="20" text-anchor="middle"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 28" width="920" height="28">
+  <text x="460" y="20" text-anchor="middle"
         font-family="DejaVu Sans Mono, Cascadia Code, monospace"
         font-size="14" letter-spacing="6"
-        fill="#880000">// SELF-HOSTED · ZERO TELEMETRY · RED AND BLACK</text>
+        fill="#880000">// SELF-HOSTED · ZERO TELEMETRY · OPERATOR ON DUTY</text>
 </svg>

@@ -6,5 +6,5 @@
                        |_|            |___/ 
               .digital
 
-      // self-hosted. zero telemetry. red and black.
+      // self-hosted. zero telemetry. operator on duty.
 

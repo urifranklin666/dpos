@@ -1,18 +1,19 @@
-# dpos / zsh — small, native, no framework.
-# prompt: two lines, red brackets, dim path, bright cursor mark.
+# dpos / zsh — operator-cult industrial.
+# multi-line prompt with chrome, git status with dirty markers,
+# inline exit-code indicator, right-side timestamp, terminal title hook.
+# No frameworks. Plain zsh. Boots in <30ms on a Pi 4.
 
 # ---- history --------------------------------------------------------------
 HISTFILE="${HOME}/.zsh_history"
 HISTSIZE=20000
 SAVEHIST=20000
 setopt SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE HIST_REDUCE_BLANKS \
-       APPEND_HISTORY INC_APPEND_HISTORY
+       APPEND_HISTORY INC_APPEND_HISTORY HIST_VERIFY
 
 # ---- options --------------------------------------------------------------
 setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT
 setopt EXTENDED_GLOB NOMATCH NUMERIC_GLOB_SORT
-setopt INTERACTIVE_COMMENTS
-setopt PROMPT_SUBST
+setopt INTERACTIVE_COMMENTS PROMPT_SUBST TRANSIENT_RPROMPT
 unsetopt BEEP
 
 # ---- completion -----------------------------------------------------------
@@ -27,7 +28,9 @@ zstyle ':completion:*'                 menu select
 zstyle ':completion:*'                 group-name ''
 zstyle ':completion:*'                 list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*:descriptions'    format $'%F{160}// %d%f'
-zstyle ':completion:*:warnings'        format $'%F{160}// no matches%f'
+zstyle ':completion:*:messages'        format $'%F{240}// %d%f'
+zstyle ':completion:*:warnings'        format $'%F{196}// no matches: %d%f'
+zstyle ':completion:*:corrections'     format $'%F{160}// %d (%e errors)%f'
 zstyle ':completion:*'                 verbose true
 
 # ---- keybindings ----------------------------------------------------------
@@ -41,28 +44,54 @@ bindkey '^[[1;5D' backward-word
 autoload -U colors && colors
 export CLICOLOR=1
 export LSCOLORS='ExFxBxDxCxegedabagacad'
-# Red brand color for ANSI consumers:
 export LS_COLORS="di=38;5;160:ln=38;5;88:so=38;5;196:pi=38;5;88:ex=38;5;160:bd=38;5;88:cd=38;5;88:su=38;5;196:sg=38;5;160:tw=38;5;88:ow=38;5;88"
 
-# ---- prompt ---------------------------------------------------------------
-# git branch in prompt without a plugin
-function _dpos_git_branch() {
-  local ref
+# ---- prompt segments ----------------------------------------------------
+# git: branch + dirty indicators (! tree, + staged, ? untracked)
+function _dpos_git() {
+  local ref dirty out
   ref=$(command git symbolic-ref --short HEAD 2>/dev/null) || \
   ref=$(command git rev-parse --short HEAD 2>/dev/null) || return 0
-  printf '%s' " %F{88}[git:${ref}]%f"
+
+  if ! command git diff --no-ext-diff --quiet 2>/dev/null; then dirty="${dirty}!"; fi
+  if ! command git diff --no-ext-diff --cached --quiet 2>/dev/null; then dirty="${dirty}+"; fi
+  if [[ -n "$(command git ls-files --others --exclude-standard 2>/dev/null | head -1)" ]]; then
+    dirty="${dirty}?"
+  fi
+
+  out="  %F{88}git:%f%F{160}${ref}%f"
+  if [[ -n "${dirty}" ]]; then
+    out="${out} %F{196}${dirty}%f"
+  fi
+  printf '%s' "${out}"
 }
 
-# return code marker
+# Exit code (inline, only when non-zero)
 function _dpos_retcode() {
   local rc=$?
-  if (( rc != 0 )); then
-    printf ' %%F{196}!%d%%f' "$rc"
-  fi
+  (( rc != 0 )) && printf '  %%F{196}!%d%%f' "$rc"
 }
 
-PROMPT=$'\n%F{160}[%n@%m]%f %F{240}[%~]%f$(_dpos_git_branch)$(_dpos_retcode)\n%F{196}▌%f '
-RPROMPT=$''
+# Sigil — a single brand character on the prompt-end line
+local _dpos_sigil=$'▌'   # ▌
+
+# ---- prompt --------------------------------------------------------------
+PROMPT=$'\n%F{160}╭─%f %F{red}%n@%m%f  %F{246}%(4~|.../%3~|%~)%f$(_dpos_git)$(_dpos_retcode)\n%F{160}╰─%f%F{196}'"${_dpos_sigil}"$'%f '
+PROMPT2='%F{160}╰─%f%F{88}'"${_dpos_sigil}"$'%f '
+RPROMPT='%F{240}%D{%H:%M:%S}%f'
+SPROMPT='%F{160}//%f did you mean: %F{196}%R%f → %F{160}%r%f ? [%F{196}n%fyae] '
+
+# ---- terminal title -------------------------------------------------------
+autoload -U add-zsh-hook
+function _dpos_set_title() {
+  print -Pn "\e]0;dpos // %(4~|.../%3~|%~)\a"
+}
+function _dpos_set_title_cmd() {
+  local cmd="${1%% *}"
+  print -Pn "\e]0;dpos // ${cmd} // %(4~|.../%2~|%~)\a"
+}
+add-zsh-hook precmd  _dpos_set_title
+add-zsh-hook preexec _dpos_set_title_cmd
 
 # ---- aliases --------------------------------------------------------------
 [[ -f "${HOME}/.zsh_aliases" ]] && source "${HOME}/.zsh_aliases"
@@ -74,12 +103,11 @@ export PAGER="${PAGER:-less}"
 export LESS='-R -F -X -i -M'
 export MANPAGER='less -R --use-color -Dd+r -Du+b'
 
-# Make less render in brand red where it can
-export LESS_TERMCAP_md=$'\e[38;5;160m'    # bold
-export LESS_TERMCAP_mb=$'\e[38;5;196m'    # blink
-export LESS_TERMCAP_us=$'\e[4m\e[38;5;196m' # underline
+export LESS_TERMCAP_md=$'\e[38;5;160m'
+export LESS_TERMCAP_mb=$'\e[38;5;196m'
+export LESS_TERMCAP_us=$'\e[4m\e[38;5;196m'
 export LESS_TERMCAP_ue=$'\e[0m'
-export LESS_TERMCAP_so=$'\e[48;5;52;38;5;255m' # standout
+export LESS_TERMCAP_so=$'\e[48;5;52;38;5;255m'
 export LESS_TERMCAP_se=$'\e[0m'
 export LESS_TERMCAP_me=$'\e[0m'
 
@@ -93,19 +121,21 @@ path=(
 export PATH
 
 # ---- pi-friendly defaults -------------------------------------------------
-# disable that ridiculous PIP "you're behind on pip" check
 export PIP_DISABLE_PIP_VERSION_CHECK=1
-# stop systemd from paging on units-output when piping to less
 export SYSTEMD_PAGER=""
 
-# ---- ansi-art on shell open (optional) ------------------------------------
-# uncomment to see the deadplug logo every shell open:
-# [[ -t 1 && -z "${DPOS_NO_BANNER:-}" && -r "$HOME/.local/share/dpos/logo.ans" ]] && cat "$HOME/.local/share/dpos/logo.ans"
-
-# ---- welcome -- only on a tty and only the first time per terminal --------
-if [[ -t 1 && -z "${_DPOS_WELCOMED:-}" && -z "${INSIDE_EMACS:-}" && -z "${TMUX:-}" ]]; then
+# ---- shell-open banner ---------------------------------------------------
+# Runs dpos-banner once per interactive shell (skipped under tmux/screen/vim
+# and when DPOS_NO_BANNER is set). The banner shows the figlet wordmark,
+# today's rite, and a small status line — keeps the brand present without
+# being noisy. ~80ms cold on the Pi 4.
+if [[ -o interactive && -t 1 \
+      && -z "${DPOS_NO_BANNER:-}" \
+      && -z "${_DPOS_WELCOMED:-}" \
+      && -z "${INSIDE_EMACS:-}" \
+      && -z "${TMUX:-}" \
+      && -z "${STY:-}" \
+      && -z "${VIMRUNTIME:-}" ]]; then
   export _DPOS_WELCOMED=1
-  if command -v fortune >/dev/null 2>&1; then
-    print -P "%F{160}// %f%F{240}$(fortune -s deadplug 2>/dev/null || fortune -s 2>/dev/null | head -3)%f"
-  fi
+  command -v dpos-banner >/dev/null 2>&1 && dpos-banner
 fi

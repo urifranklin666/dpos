@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# dpos-banner — brand header for every interactive shell open.
+# Light: figlet wordmark + the rite + a status line. ~80ms on the Pi 4.
+# Set $DPOS_NO_BANNER=1 to silence.
+
+[[ -n "${DPOS_NO_BANNER:-}" ]] && exit 0
+
+# Don't render if stdout isn't a terminal
+[[ -t 1 ]] || exit 0
+
+RED=$'\033[38;5;160m'
+RED_BR=$'\033[38;5;196m'
+RED_DIM=$'\033[38;5;88m'
+DIM=$'\033[38;5;240m'
+SILVER=$'\033[38;5;253m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
+logo="${HOME}/.local/share/dpos/logo.ans"
+rite_bin="${HOME}/.local/bin/dpos-rite"
+
+# Wordmark — print the ANSI logo in brand red
+if [[ -r "${logo}" ]]; then
+  printf '\n%s' "${RED}"
+  cat "${logo}"
+  printf '%s' "${RESET}"
+fi
+
+# Compose the rite line. Format is:
+#
+#   ─── // operator on duty · 14:32 · up 3d 14h ───
+#       today: <rite>
+#
+time_s=$(date +%H:%M)
+# Compact uptime: "Xd Yh" / "Hh Mm" / "Mm" — at most two units, no "weeks"
+uptime_s=$(awk '
+  { secs=$1 }
+  END {
+    d=int(secs/86400); h=int((secs%86400)/3600); m=int((secs%3600)/60)
+    if (d>0) printf "%dd %dh", d, h
+    else if (h>0) printf "%dh %dm", h, m
+    else printf "%dm", m
+  }
+' /proc/uptime 2>/dev/null)
+
+# Wide red rule with operator status
+printf '%s── %s// operator on duty%s %s· %s · up %s ──%s\n' \
+  "${RED}" "${BOLD}${RED_BR}" "${RESET}${RED}" "${RED_DIM}" \
+  "${SILVER}${time_s}${RED_DIM}" "${SILVER}${uptime_s}${RED_DIM}" "${RESET}"
+
+# The rite, on its own indented line
+if [[ -x "${rite_bin}" ]]; then
+  rite=$("${rite_bin}" 2>/dev/null)
+  if [[ -n "${rite}" ]]; then
+    printf '  %s// %s%s%s\n' "${RED}" "${SILVER}" "${rite}" "${RESET}"
+  fi
+fi
+
+printf '\n'

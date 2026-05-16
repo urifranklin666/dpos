@@ -128,12 +128,16 @@ imply a viewport without drawing a box.
 |----------------|-----------------------------------------------------|
 | Wallpaper      | Column of ambient operator log-lines, fading top/bot |
 | Polybar        | `// LABEL VALUE` everywhere, underline on active   |
-| Fastfetch      | Figlet wordmark + daily rite in serif italic (every shell open) |
+| Plymouth splash | Pulsing sigil + chromatic-split glitch on the wordmark |
+| Shell banner   | dpos-banner on every interactive shell — figlet wordmark + rite |
+| Zsh prompt     | `╭─ user@host ~/path  git:branch !`  /  `╰─▌` with RPROMPT time |
+| Vim            | Custom dpos.vim colorscheme — comments italic dim, keywords bold red |
+| tmux           | `// dpos · session` left, `host · HH:MM · YYYY-MM-DD` right |
+| btop           | dpos.theme — all gradients red-only, no green→amber→red |
 | Lockscreen     | Blurred wallpaper + centered `// AUTHENTICATE`     |
 | First boot     | One-time greeter terminal with fastfetch + single dry line |
 
-(Conky was removed — it doesn't belong on a tiling WM. See the
-"Differentiation anchor" section above.)
+(Conky was removed — it doesn't belong on a tiling WM.)
 
 ## Anti-patterns
 

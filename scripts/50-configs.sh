@@ -42,6 +42,7 @@ drop_dir picom     "${HOME}/.config/picom"
 drop_dir rofi      "${HOME}/.config/rofi"
 drop_dir alacritty "${HOME}/.config/alacritty"
 drop_dir dunst     "${HOME}/.config/dunst"
+drop_dir btop      "${HOME}/.config/btop"
 
 # polybar launcher must be executable
 chmod +x "${HOME}/.config/polybar/launch.sh"
@@ -87,5 +88,21 @@ for script in "${DPOS_DIR}/configs/bin/"*; do
   install -m 0755 "${script}" "${dest}"
 done
 log_ok "deployed helpers to ~/.local/bin ($(ls "${HOME}/.local/bin/dpos-"* 2>/dev/null | wc -l) scripts)"
+
+# vim — colorscheme + vimrc
+mkdir -p "${HOME}/.vim/colors"
+install -m 0644 "${DPOS_DIR}/configs/vim/colors/dpos.vim" "${HOME}/.vim/colors/dpos.vim"
+if [[ -e "${HOME}/.vimrc" ]]; then
+  backup_path "${HOME}/.vimrc"
+fi
+install -m 0644 "${DPOS_DIR}/configs/vim/vimrc" "${HOME}/.vimrc"
+log_ok "deployed vim colorscheme + vimrc"
+
+# tmux config
+if [[ -e "${HOME}/.tmux.conf" ]]; then
+  backup_path "${HOME}/.tmux.conf"
+fi
+install -m 0644 "${DPOS_DIR}/configs/tmux/tmux.conf" "${HOME}/.tmux.conf"
+log_ok "deployed ~/.tmux.conf"
 
 log_ok "configs deployed"

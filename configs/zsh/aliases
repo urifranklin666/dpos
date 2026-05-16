@@ -42,6 +42,11 @@ alias e='${EDITOR:-vim}'
 # ---- sysinfo --------------------------------------------------------------
 alias ff='fastfetch'
 alias sysinfo='fastfetch'
+alias banner='dpos-banner'
+
+# btop with the dpos theme
+alias top='btop'
+alias htop='btop'
 
 # ---- docker (in case you're running rootless or similar) -----------------
 alias dc='docker compose'

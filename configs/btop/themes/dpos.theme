@@ -1,0 +1,57 @@
+#dpos — operator-cult industrial btop theme.
+#Red-only gradients across the board. No green→amber→red rainbow.
+#Tokens mirror /homepage CSS variables.
+
+theme[main_bg]="#060606"
+theme[main_fg]="#dedede"
+theme[title]="#ff2222"
+theme[hi_fg]="#cc0000"
+theme[selected_bg]="#3a0000"
+theme[selected_fg]="#ffffff"
+theme[inactive_fg]="#606060"
+theme[graph_text]="#9a9a9a"
+theme[meter_bg]="#1c0000"
+theme[proc_misc]="#cc0000"
+
+theme[cpu_box]="#cc0000"
+theme[mem_box]="#cc0000"
+theme[net_box]="#cc0000"
+theme[proc_box]="#cc0000"
+theme[div_line]="#2b0000"
+
+# All gradients keep the brand red — dim → bright as the value climbs.
+theme[temp_start]="#880000"
+theme[temp_mid]="#cc0000"
+theme[temp_end]="#ff2222"
+
+theme[cpu_start]="#880000"
+theme[cpu_mid]="#cc0000"
+theme[cpu_end]="#ff2222"
+
+theme[free_start]="#880000"
+theme[free_mid]="#cc0000"
+theme[free_end]="#ff2222"
+
+theme[cached_start]="#880000"
+theme[cached_mid]="#cc0000"
+theme[cached_end]="#ff2222"
+
+theme[available_start]="#880000"
+theme[available_mid]="#cc0000"
+theme[available_end]="#ff2222"
+
+theme[used_start]="#880000"
+theme[used_mid]="#cc0000"
+theme[used_end]="#ff2222"
+
+theme[download_start]="#880000"
+theme[download_mid]="#cc0000"
+theme[download_end]="#ff2222"
+
+theme[upload_start]="#880000"
+theme[upload_mid]="#cc0000"
+theme[upload_end]="#ff2222"
+
+theme[process_start]="#880000"
+theme[process_mid]="#cc0000"
+theme[process_end]="#ff2222"
