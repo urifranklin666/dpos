@@ -52,8 +52,8 @@ main, so the kit works on either codename.
 | fd-find    | arm64 | Fast `find`; binary is `fdfind`; used by FZF_DEFAULT_COMMAND |
 | ripgrep    | arm64 | Fast `grep`; binary is `rg` |
 | ncdu       | arm64 | Interactive disk usage |
-| tldr       | all   | Quick man-page summaries |
-| lazygit    | arm64 | Git TUI — installed if available, otherwise skipped |
+| tealdeer   | arm64 | tldr (quick-reference) — Rust impl. Optional; falls back to `tldr` or skip |
+| lazygit    | arm64 | Git TUI — optional; skipped if unavailable in this point release |
 
 ## Stage 20 — i3 stack (`scripts/20-i3.sh`)
 
